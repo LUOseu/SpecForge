@@ -1,0 +1,24 @@
+{
+  "mode": "additional deterministic inference test",
+  "sglang_source": "c757c4bb7c55d1eb69fdb2bdc6e6fb8507acb7a0",
+  "hardware": "2 x Ascend 910B3",
+  "first_arm": "target-only",
+  "actual_server_args": {
+    "tp_size": 2,
+    "dtype": "bfloat16",
+    "enable_deterministic_inference": true,
+    "attention_backend": "ascend",
+    "speculative_algorithm": null,
+    "context_length": 2048,
+    "max_running_requests": 1
+  },
+  "failed_tp_ranks": [
+    0,
+    1
+  ],
+  "phase": "startup / batch-invariant NPU operator registration",
+  "error": "ModuleNotFoundError: No module named 'batch_invariant_ops'",
+  "completed_measured_requests": 0,
+  "inference_metrics": null,
+  "original_server_log_sha256": "a7bd43234be5e165b0526ba886e3ebdea639c37c688a1442e272966b6ad8023d"
+}

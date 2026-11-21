@@ -176,13 +176,15 @@ def draft_configs(paths):
     check(mappings[0] == mappings[1], "the two drafts have different exported vocabularies")
 
 
-def launch_args(target, draft, tp, port, fraction, context):
+def launch_args(target, draft, tp, port, fraction, context, deterministic=False):
     args = [sys.executable, "-m", "sglang.launch_server", "--model-path", str(target),
             "--tokenizer-path", str(target), "--host", "127.0.0.1", "--port", str(port),
             "--device", "npu", "--attention-backend", "ascend", "--tp-size", str(tp),
             "--dtype", "bfloat16", "--random-seed", str(SEED),
             "--mem-fraction-static", str(fraction), "--context-length", str(context),
             "--max-running-requests", "1", "--chunked-prefill-size", "-1", "--disable-radix-cache"]
+    if deterministic:
+        args.append("--enable-deterministic-inference")
     if draft:
         args.extend(["--speculative-algorithm", "EAGLE3", "--speculative-draft-model-path", str(draft),
                      "--speculative-num-steps", str(STEPS), "--speculative-eagle-topk", "1",
@@ -190,13 +192,15 @@ def launch_args(target, draft, tp, port, fraction, context):
     return args
 
 
-def check_server(info, target, draft, tp, fraction, context):
+def check_server(info, target, draft, tp, fraction, context, deterministic=None):
     expected = {"model_path": str(target), "tokenizer_path": str(target), "device": "npu",
                 "attention_backend": "ascend", "dtype": "bfloat16", "tp_size": tp,
                 "random_seed": SEED, "context_length": context, "mem_fraction_static": fraction,
                 "disable_radix_cache": True, "max_running_requests": 1,
                 "speculative_algorithm": "EAGLE3" if draft else None,
                 "speculative_draft_model_path": str(draft) if draft else None}
+    if deterministic is not None:
+        expected["enable_deterministic_inference"] = deterministic
     if draft:
         expected.update(speculative_num_steps=STEPS, speculative_eagle_topk=1,
                         speculative_num_draft_tokens=STEPS + 1)
@@ -205,7 +209,7 @@ def check_server(info, target, draft, tp, fraction, context):
     extra = ("version", "disable_overlap_schedule", "cuda_graph_backend_decode",
              "disable_decode_cuda_graph", "prefill_attention_backend", "decode_attention_backend",
              "quantization", "speculative_draft_model_quantization", "load_format", "dp_size", "ep_size",
-             "chunked_prefill_size")
+             "chunked_prefill_size", "enable_deterministic_inference")
     return {k: info[k] for k in [*expected, *extra] if k in info}
 
 
@@ -380,6 +384,8 @@ def run(args):
                         "HCCL_EXEC_TIMEOUT", "PYTORCH_NPU_ALLOC_CONF", "SGLANG_SIMULATE_ACC_LEN",
                         "SPECFORGE_SPEC_CAPTURE") if k in os.environ},
                 "commands": {}}
+    if args.deterministic:
+        manifest["deterministic_inference"] = True
     if previous is not None:
         check({k: v for k, v in previous.items() if k != "commands"} ==
               {k: v for k, v in manifest.items() if k != "commands"}, "resume run identity mismatch")
@@ -388,7 +394,7 @@ def run(args):
     runs = {}
     for arm in (("target",) if args.target_only else ARMS):
         draft = drafts.get(arm)
-        cmd = launch_args(target, draft, tp, args.port, args.fraction, args.context)
+        cmd = launch_args(target, draft, tp, args.port, args.fraction, args.context, args.deterministic)
         if arm in manifest["commands"]:
             check(manifest["commands"][arm] == cmd, f"resume command mismatch for {arm}")
         if previous is not None and (out / f"{arm}.json").exists():
@@ -398,7 +404,7 @@ def run(args):
             check(summarize(outputs, stats["measurement_seconds"], bool(draft)) == stats,
                   f"resume aggregate mismatch: {arm}")
             check_server(json.loads((out / f"{arm}.server.json").read_bytes()),
-                         target, draft, tp, args.fraction, args.context)
+                         target, draft, tp, args.fraction, args.context, True if args.deterministic else None)
             runs[arm] = outputs, stats
             continue
         manifest["commands"][arm] = cmd
@@ -409,7 +415,8 @@ def run(args):
         with requests.Session() as session:
             session.trust_env = False
             with server(cmd, args.port, log, session) as info:
-                save(out / f"{arm}.server.json", check_server(info, target, draft, tp, args.fraction, args.context))
+                save(out / f"{arm}.server.json", check_server(info, target, draft, tp, args.fraction, args.context,
+                                                             True if args.deterministic else None))
                 outputs = []
                 for i, row in enumerate(prompt_rows):
                     if i == 1:
@@ -450,6 +457,7 @@ def main():
     parser.add_argument("--eagle3", type=Path)
     parser.add_argument("--eagle31", type=Path)
     parser.add_argument("--target-only", action="store_true", help="standalone diagnostic, requires no draft exports")
+    parser.add_argument("--deterministic", action="store_true", help="require SGLang deterministic inference in every arm")
     parser.add_argument("--resume", action="store_true", help="verify an interrupted run and finish the missing arms")
     parser.add_argument("--devices", default="0,1", help="comma-separated physical Ascend device IDs, TP equals their number")
     parser.add_argument("--device-map", type=Path, help="host npu-smi info -m output if unavailable in container")

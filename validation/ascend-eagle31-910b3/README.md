@@ -122,3 +122,14 @@ python "$BUNDLE/norm/check_trained_forward.py" --target "$TARGET_MODEL" --shells
 The [separate live SGLang check](norm/live/README.md) loaded this EAGLE3.1 export on two 910B3 cards and generated eight tokens in seven verification calls. Each TP worker loaded all four normalization weights with matching source and destination hashes. During the request the three feature norms each ran eight times and the final norm ran 22 times. All 22 final-normalized outputs fed speculative feedback. The largest sampled relative L2 discrepancy against the FP32 formula was 0.002531 in BF16. Graph capture was disabled for this diagnostic. The timing run used the original serving code with graphs enabled. [Live observation](results/live-normalization.json)
 
 The matched run measured 46.19 output tokens/s for target-only, 30.35 for EAGLE3 and 39.39 for EAGLE3.1. The drafts agreed with each other on all eight greedy sequences and with target-only on four. Their pooled accept lengths were 1.0546 and 1.0622. One request accounted for most of the wall-time difference between the draft arms. These figures describe a single eight-prompt run with small, eight-update drafts.
+
+
+## Common-prefix check
+
+A follow-up reproduced the first differing token for all four affected requests in both target-only and EAGLE3.1 serving. With their full shared prefix supplied to both servers as prefill, all four next-token choices agreed. The logged scores for the two competing tokens were close or tied. For example, at zero-based position 33, the target-only decode favored its selected candidate by 0.125 log probability, while the draft server's target verification favored the other candidate by 0.125. This check locates the observed differences in incremental decode versus verification. The source of the kernel-level difference remains open. [Per-request score evidence](results/greedy-scores.json)
+
+Use the same full eight requests for a separate deterministic-mode attempt with `--deterministic` added to the evaluation command and a fresh output directory. The pinned SGLang on the tested CANN 9.1.0 stack accepted `--enable-deterministic-inference`. Startup on both target-only TP ranks reached NPU batch-invariant operator initialization and raised `ModuleNotFoundError: No module named 'batch_invariant_ops'`. The deterministic attempt completed zero measured requests. The four-prompt score replay used the normal runtime settings. [Startup evidence](results/deterministic-startup.json)
+
+```bash
+python "$BUNDLE/eval/diagnose_greedy.py" --input "$RUN_BASE/eval" --out "$RUN_BASE/score-diagnostic"
+```

@@ -1,5 +1,6 @@
 """Compute a shareable three-arm summary from the private per-request benchmark evidence."""
 import argparse
+import ast
 import hashlib
 import itertools
 import json
@@ -76,6 +77,20 @@ def summarize_run(root, diagnostic=None):
                               "throughput_ratio_second_over_first_when_outputs_match":
                               summaries[b]["wall_output_tok_s"]/summaries[a]["wall_output_tok_s"] if exact==len(prompts) else None}
     report["eagle31_minus_eagle3_pooled_accept_length"] = calc["eagle31_minus_eagle3_accept_length"]
+    safe_fields = ("device", "attention_backend", "sampling_backend", "disable_custom_all_reduce",
+                   "dtype", "context_length", "max_running_requests",
+                   "chunked_prefill_size", "mem_fraction_static", "disable_radix_cache", "disable_overlap_schedule",
+                   "speculative_algorithm", "speculative_eagle_topk", "speculative_num_steps", "speculative_num_draft_tokens",
+                   "enable_deterministic_inference", "speculative_use_rejection_sampling",
+                   "speculative_accept_threshold_single", "speculative_accept_threshold_acc")
+    report["server_settings"] = {}
+    for arm in ARMS:
+        info = load(f"{arm}.server.json")
+        for line in (root/f"{arm}.log").read_text(errors="replace").splitlines():
+            if "server_args=" in line:
+                info = ast.literal_eval(line.split("server_args=",1)[1]) | info
+                break
+        report["server_settings"][arm] = {k:info.get(k) for k in safe_fields}
     if diagnostic:
         d = json.loads((diagnostic/"target.json").read_bytes())
         check([r["id"] for r in d["requests"]] == [p["id"] for p in prompts], "diagnostic prompt IDs differ")
