@@ -213,6 +213,7 @@ def check_server(info, target, draft, tp, fraction, context):
 def server(cmd, port, log_path, session):
     # Refuse an occupied endpoint before spawning. Only ever stop our own child group.
     with socket.socket() as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(("127.0.0.1", port))
     with log_path.open("wb") as logs:
         proc = subprocess.Popen(cmd, stdout=logs, stderr=subprocess.STDOUT, start_new_session=True)
@@ -294,8 +295,13 @@ def compare(runs):
         rows, _ = runs[arm]
         check([r["id"] for r in rows] == [r["id"] for r in target_rows], "mismatched requests")
         report["output_mismatches"][arm] = [r["id"] for r, base in zip(rows, target_rows) if r["output_ids"] != base["output_ids"]]
-    if not any(report["output_mismatches"].values()):
-        report["speedup_vs_target"] = {k: runs[k][1]["wall_output_tok_s"] / target_stats["wall_output_tok_s"] for k in ARMS[1:]}
+    valid = {k: runs[k][1]["wall_output_tok_s"] / target_stats["wall_output_tok_s"]
+             for k in ARMS[1:] if not report["output_mismatches"][k]}
+    report["speedup_vs_target"] = valid or None
+    report["eagle31_vs_eagle3_mismatches"] = [
+        a["id"] for a, b in zip(runs["eagle3"][0], runs["eagle31"][0]) if a["output_ids"] != b["output_ids"]
+    ]
+    if not report["eagle31_vs_eagle3_mismatches"]:
         report["eagle31_over_eagle3_throughput"] = runs["eagle31"][1]["wall_output_tok_s"] / runs["eagle3"][1]["wall_output_tok_s"]
         report["eagle31_minus_eagle3_accept_length"] = runs["eagle31"][1]["pooled_accept_length"] - runs["eagle3"][1]["pooled_accept_length"]
     return report
@@ -338,10 +344,16 @@ def run(args):
     check(max(len(r["input_ids"]) for r in prompt_rows) + args.max_new_tokens <= args.context, "insufficient context length")
     out = args.out
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.mkdir(exist_ok=False)
-    (out / "npu-device-map.txt").write_text(device_map)
-    save(out / "prompts.json", {"dataset": source, "seed": SEED,
-                               "warmup": prompt_rows[0], "measured": prompt_rows[1:]})
+    previous = None
+    inputs = {"dataset": source, "seed": SEED, "warmup": prompt_rows[0], "measured": prompt_rows[1:]}
+    if args.resume:
+        previous = json.loads((out / "manifest.json").read_bytes())
+        check(json.loads((out / "prompts.json").read_bytes()) == inputs, "resume prompt mismatch")
+        check((out / "npu-device-map.txt").read_text() == device_map, "resume device map mismatch")
+    else:
+        out.mkdir(exist_ok=False)
+        (out / "npu-device-map.txt").write_text(device_map)
+        save(out / "prompts.json", inputs)
     sampling = {"temperature": 0, "max_new_tokens": args.max_new_tokens}
     probe_code = ("import json,torch,torch_npu; print(json.dumps([torch.npu.get_device_name(i) "
                   "for i in range(torch.npu.device_count())]))")
@@ -368,16 +380,35 @@ def run(args):
                         "HCCL_EXEC_TIMEOUT", "PYTORCH_NPU_ALLOC_CONF", "SGLANG_SIMULATE_ACC_LEN",
                         "SPECFORGE_SPEC_CAPTURE") if k in os.environ},
                 "commands": {}}
+    if previous is not None:
+        check({k: v for k, v in previous.items() if k != "commands"} ==
+              {k: v for k, v in manifest.items() if k != "commands"}, "resume run identity mismatch")
+        manifest["commands"] = previous["commands"]
     save(out / "manifest.json", manifest)
     runs = {}
     for arm in (("target",) if args.target_only else ARMS):
         draft = drafts.get(arm)
         cmd = launch_args(target, draft, tp, args.port, args.fraction, args.context)
+        if arm in manifest["commands"]:
+            check(manifest["commands"][arm] == cmd, f"resume command mismatch for {arm}")
+        if previous is not None and (out / f"{arm}.json").exists():
+            saved = json.loads((out / f"{arm}.json").read_bytes())
+            outputs, stats = saved["requests"], saved["summary"]
+            check([r["id"] for r in outputs] == [r["id"] for r in prompt_rows[1:]], f"resume IDs differ: {arm}")
+            check(summarize(outputs, stats["measurement_seconds"], bool(draft)) == stats,
+                  f"resume aggregate mismatch: {arm}")
+            check_server(json.loads((out / f"{arm}.server.json").read_bytes()),
+                         target, draft, tp, args.fraction, args.context)
+            runs[arm] = outputs, stats
+            continue
         manifest["commands"][arm] = cmd
         save(out / "manifest.json", manifest)
+        log = out / f"{arm}.log"
+        if log.exists():
+            log = out / f"{arm}.retry-{time.time_ns()}.log"
         with requests.Session() as session:
             session.trust_env = False
-            with server(cmd, args.port, out / f"{arm}.log", session) as info:
+            with server(cmd, args.port, log, session) as info:
                 save(out / f"{arm}.server.json", check_server(info, target, draft, tp, args.fraction, args.context))
                 outputs = []
                 for i, row in enumerate(prompt_rows):
@@ -419,6 +450,7 @@ def main():
     parser.add_argument("--eagle3", type=Path)
     parser.add_argument("--eagle31", type=Path)
     parser.add_argument("--target-only", action="store_true", help="standalone diagnostic, requires no draft exports")
+    parser.add_argument("--resume", action="store_true", help="verify an interrupted run and finish the missing arms")
     parser.add_argument("--devices", default="0,1", help="comma-separated physical Ascend device IDs, TP equals their number")
     parser.add_argument("--device-map", type=Path, help="host npu-smi info -m output if unavailable in container")
     dataset = parser.add_mutually_exclusive_group()

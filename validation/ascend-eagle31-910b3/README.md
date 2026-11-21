@@ -2,6 +2,20 @@
 
 This bundle reproduces an eight-update SpecForge integration run with `Qwen/Qwen3-30B-A3B-Instruct-2507`. SGLang ran the target on two NPUs and published the three auxiliary states and final hidden state to Mooncake. A third NPU trained the draft with BF16 and SDPA. The control ran the EAGLE3 preset on the same eight examples. The training source in this checkout matches upstream `5d4c6a1483afec88b19270d369d16b99492abfdf`.
 
+## Use the published source and checkpoints
+
+```bash
+git clone --depth 1 --branch ascend-910b3-eagle3-smoke-20261121 https://github.com/LUOseu/SpecForge.git SpecForge-910B3
+cd SpecForge-910B3
+```
+
+To evaluate the original exports, download the two release archives and verify their shared checksum file. The extracted directories can be passed directly to the evaluation command below.
+
+```bash
+gh release download ascend-910b3-eagle3-smoke-20261121 --repo LUOseu/SpecForge --dir published-drafts
+(cd published-drafts && sha256sum -c SHA256SUMS && for a in *.tar.gz; do tar -xzf "$a"; done)
+```
+
 ## Environment
 
 The measured notebook used the aarch64 filesystem of the following 910B image with the notebook's own NPU devices and driver libraries. The driver was 26.0.rc1, firmware 9.0.0.0.205, CANN/HCCL 9.1.0 and each card had 65,536 MiB HBM. The commands below start inside this image or its extracted userland. The notebook used native execution of its extracted Python and CANN libraries. A Docker-capable host can start the same image with its normal Ascend device and driver mounts. See [SGLang's Ascend setup](https://github.com/sgl-project/sglang/tree/c757c4bb7c55d1eb69fdb2bdc6e6fb8507acb7a0/docs/docs/hardware-platforms/ascend-npus/getting-started) and [the measured versions](runtime/versions.json).
@@ -86,7 +100,7 @@ python "$BUNDLE/eval/benchmark.py" --target "$TARGET_MODEL" \
   --devices 6,7 --held-out "$SMOKE_DATA/held-out.jsonl" --out "$RUN_BASE/eval"
 ```
 
-Each arm starts a fresh SGLang server. One warmup is excluded, then the same eight prompts are sent sequentially with greedy decoding, a maximum of 128 new tokens, and EOS enabled. Both draft servers select `EAGLE3`, three speculative steps, top-k 1, and four draft tokens including the bonus verification position. The workload uses concurrency 1 and TP2. Output throughput is the measured completion-token total divided by end-to-end timed wall seconds. Pooled acceptance length is the completion-token total divided by the number of verification rounds, including the bonus token. The target-only arm has no verification rounds. The runner also records per-request token agreement against the target baseline.
+The [measured results](results/matched-results.json) include per-request counts, times, token-sequence hashes and first divergence positions. Each arm starts a fresh SGLang server. One warmup is excluded, then the same eight prompts are sent sequentially with greedy decoding, a maximum of 128 new tokens, and EOS enabled. Both draft servers select `EAGLE3`, three speculative steps, top-k 1, and four draft tokens including the bonus verification position. The workload uses concurrency 1 and TP2. Output throughput is the measured completion-token total divided by end-to-end timed wall seconds. Pooled acceptance length is the completion-token total divided by the number of verification rounds, including the bonus token. The target-only arm has no verification rounds. The runner also records per-request token agreement against the target baseline.
 
 ## Check normalization on the trained weights
 
@@ -104,3 +118,7 @@ python "$BUNDLE/norm/check_trained_forward.py" --make-shells "$SPECFORGE_REPO" -
 python "$BUNDLE/norm/check_trained_forward.py" --target "$TARGET_MODEL" --shells "$WORK/model-shells" \
   --eagle3 "$E3/${E3##*/}-step8" --eagle31 "$E31/${E31##*/}-step8"
 ```
+
+The [separate live SGLang check](norm/live/README.md) loaded this EAGLE3.1 export on two 910B3 cards and generated eight tokens in seven verification calls. Each TP worker loaded all four normalization weights with matching source and destination hashes. During the request the three feature norms each ran eight times and the final norm ran 22 times. All 22 final-normalized outputs fed speculative feedback. The largest sampled relative L2 discrepancy against the FP32 formula was 0.002531 in BF16. Graph capture was disabled for this diagnostic. The timing run used the original serving code with graphs enabled. [Live observation](results/live-normalization.json)
+
+The matched run measured 46.19 output tokens/s for target-only, 30.35 for EAGLE3 and 39.39 for EAGLE3.1. The drafts agreed with each other on all eight greedy sequences and with target-only on four. Their pooled accept lengths were 1.0546 and 1.0622. One request accounted for most of the wall-time difference between the draft arms. These figures describe a single eight-prompt run with small, eight-update drafts.
