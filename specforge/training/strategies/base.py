@@ -516,7 +516,19 @@ class DFlashTrainStrategy(DraftTrainStrategy):
         t = batch.tensors
         device = self._device()
         selector_loss_alpha = self._selector_loss_alpha(ctx)
-        max_valid_anchors = _cpu_max_valid_anchors(t["loss_mask"])
+        loss_mask = t["loss_mask"]
+        if "visual_score" in t:
+            # Scored VLM batches use the reference full-block sampler. Compute
+            # its width on the CPU before copying features to the trainer device.
+            block_size = int(self._draft_attr("block_size", 16))
+            valid = loss_mask[:, : max(loss_mask.size(1) - block_size + 1, 1)] > 0.5
+            max_valid_anchors = (
+                int(valid.sum(dim=1).max().item()) - 1
+                if loss_mask.device.type == "cpu"
+                else None
+            )
+        else:
+            max_valid_anchors = _cpu_max_valid_anchors(loss_mask)
         collect_detailed_metrics = (
             ctx.collect_detailed_metrics if ctx is not None else True
         )
@@ -529,6 +541,10 @@ class DFlashTrainStrategy(DraftTrainStrategy):
         }
         if ctx is not None:
             model_inputs["collect_detailed_metrics"] = collect_detailed_metrics
+        if "visual_score" in t:
+            model_inputs["visual_score"] = t["visual_score"].to(
+                device, non_blocking=True
+            )
         target_last_hidden_states = t.get("target_last_hidden_states")
         # Teacher hidden states only feed diagnostics; skip the copy when the
         # run disabled them (training.dflash_teacher_metrics=false).

@@ -379,6 +379,32 @@ class TestDFlashLosses(unittest.TestCase):
         self.assertTrue(torch.isfinite(accuracy))
         return loss
 
+    def test_mmflash_uses_detached_prefix_and_visual_boost_per_batch_row(self):
+        model = _make_model(
+            self.logits, self.anchors, self.keep_mask, loss_type="mmflash"
+        )
+        score = torch.linspace(0.0, 1.0, self.input_ids.numel()).view_as(self.input_ids)
+        score[1] = -1
+        loss, _, metrics = model(
+            self.input_ids, self.hidden_states, self.loss_mask, visual_score=score
+        )
+        # Explicit scalar traversal exercises gathered labels, missing/padded
+        # blocks, neutral text scores and holes in a supervised span.
+        expected = 0.0
+        for b, row in enumerate(self.anchors):
+            for j, anchor in enumerate(row):
+                prefix = 1.0
+                for k in range(self.logits.shape[2]):
+                    if self.binary_mask[b, j, k]:
+                        q = self.q[b, j, k]
+                        prefix *= (0.5 + 0.5 * q).item()
+                        g = score[b, anchor + k].clamp_min(0).item()
+                        expected += prefix * (1 + g * (1 - q)) * self.neg_log_q[b, j, k]
+        torch.testing.assert_close(loss, expected / 2)
+        self.assertEqual(metrics["loss_terms"][1].item(), 2)
+        with self.assertRaisesRegex(ValueError, "visual_score"):
+            model(self.input_ids, self.hidden_states, self.loss_mask)
+
     def test_dflash_default_matches_existing_weighted_mean(self):
         got = self._forward_loss()
         want = _naive_dflash_loss(self.neg_log_q, self.binary_mask, gamma=None)

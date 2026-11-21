@@ -11,6 +11,7 @@ from specforge.algorithms.common.collation import pad_and_concatenate_features
 from specforge.data.loss_mask import has_consecutive_supervised_tokens
 
 NORMALIZER_ID = "dflash_family_offline_v1"
+SCORED_VLM_NORMALIZER_ID = "dflash_scored_vlm_v1"
 DSPARK_NORMALIZER_ID = "dspark_offline_v1"
 MTP_NORMALIZER_ID = "mtp_offline_v1"
 
@@ -72,6 +73,37 @@ def normalize_offline_sample(raw, max_len: int):
     }
 
 
+def normalize_scored_vlm_sample(raw, max_len: int):
+    """Decode MMFlash's fixed-point label-aligned visual dependence channel."""
+    import torch
+
+    raw_score = raw["visual_score"]
+    if raw_score.dtype != torch.int64 or raw_score.shape != raw["input_ids"].shape:
+        raise ValueError(
+            "visual_score must be int64 and match input_ids before truncation"
+        )
+    if (raw_score < -1).any() or (raw_score > 10_000).any():
+        raise ValueError("visual_score must contain -1 or an integer in [0, 10000]")
+    sample = normalize_offline_sample(raw, max_len)
+    score = raw_score[:max_len].unsqueeze(0)
+    sample["visual_score"] = torch.where(score < 0, -1.0, score.float() / 10_000)
+    return sample
+
+
+def build_scored_vlm_normalizer(max_len, **_topology):
+    return partial(normalize_scored_vlm_sample, max_len=max_len)
+
+
+def build_scored_vlm_collator():
+    keys = ("input_ids", "loss_mask", "hidden_states", "visual_score")
+    return partial(
+        pad_and_concatenate_features,
+        sequence_axes=dict.fromkeys(keys, 1),
+        required_keys=keys,
+        padding_values={"visual_score": -1},
+    )
+
+
 def normalize_dspark_offline_sample(raw, max_len: int):
     """Normalize DSpark capture tensors, including target final-layer states."""
 
@@ -103,6 +135,7 @@ def build_offline_reader(
     run_id,
     ttt_length,
     max_len,
+    feature_keys=("input_ids", "loss_mask", "hidden_states"),
 ):
     # Transitional runtime import; the composition root will inject this port.
     from specforge.runtime.data_plane.offline_reader import OfflineManifestReader
@@ -111,7 +144,7 @@ def build_offline_reader(
         hidden_states_path,
         run_id=run_id,
         strategy=strategy,
-        feature_keys=("input_ids", "loss_mask", "hidden_states"),
+        feature_keys=feature_keys,
         target_repr=None,
         ttt_length=ttt_length,
         max_len=max_len,

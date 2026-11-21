@@ -956,10 +956,13 @@ class TrainingConfig(StrictConfigModel):
     objective_chunk_blocks: int = Field(default=128, ge=0)
     loss_type: Literal[
         "dflash",
+        "mmflash",
         "dpace",
         "dpace-cumulative-confidence-only",
         "dpace-continuation-value-only",
     ] = "dflash"
+    mmflash_smoothing: float = Field(default=0.5, ge=0.0, le=1.0)
+    visual_alpha: float = Field(default=1.0, ge=0.0, allow_inf_nan=False)
     dpace_alpha: float = 0.5
     #: Weight of the top-k path-selector objective for DFlash2 drafts.
     dflash2_selector_loss_alpha: float = Field(default=1.0, ge=0.0)
@@ -1135,6 +1138,15 @@ class Config(StrictConfigModel):
         deployment = self.deployment.mode
         role = self.training.role
 
+        if self.training.loss_type == "mmflash" and (
+            self.training.strategy != "dflash"
+            or mode != "offline"
+            or self.model.input_modality != "multimodal"
+            or self.training.lk_loss_type is not None
+        ):
+            raise ValueError(
+                "MMFlash loss requires offline multimodal DFlash and cross-entropy"
+            )
         if mode == "online" and deployment != "disaggregated":
             raise ValueError(
                 "online training requires deployment.mode=disaggregated; "

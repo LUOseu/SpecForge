@@ -27,8 +27,9 @@ def pad_and_concatenate_features(
     sequence_axes: Mapping[str, int],
     required_keys: Sequence[str],
     optional_keys: Sequence[str] = (),
+    padding_values: Mapping[str, float] | None = None,
 ):
-    """Zero-pad configured tensor axes to the longest input sequence.
+    """Pad configured tensor axes to the longest input sequence.
 
     ``optional_keys`` are collated when every sample carries them and omitted
     when none does; a batch that mixes both raises.
@@ -36,6 +37,7 @@ def pad_and_concatenate_features(
 
     if not features:
         raise ValueError("cannot collate an empty feature batch")
+    padding_values = padding_values or {}
     required = tuple(required_keys)
     missing = [
         (index, key)
@@ -75,7 +77,7 @@ def pad_and_concatenate_features(
                 shape = list(tensor.shape)
                 shape[axis] = max_length - length
                 tensor = torch.cat(
-                    [tensor, tensor.new_zeros(shape)],
+                    [tensor, tensor.new_full(shape, padding_values.get(key, 0))],
                     dim=axis,
                 )
             padded.append(tensor)

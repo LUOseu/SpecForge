@@ -11,9 +11,12 @@ from specforge.algorithms.common.defaults import (
 )
 from specforge.algorithms.common.hidden_states_data import (
     NORMALIZER_ID,
+    SCORED_VLM_NORMALIZER_ID,
     build_collator,
     build_offline_normalizer,
     build_offline_reader,
+    build_scored_vlm_collator,
+    build_scored_vlm_normalizer,
 )
 from specforge.algorithms.common.providers import (
     AlgorithmProviders,
@@ -39,6 +42,7 @@ from specforge.algorithms.contracts import (
 from specforge.data.loss_mask import has_consecutive_supervised_tokens
 
 ALGORITHM_NAME = "dflash"
+SCORED_VLM_FEATURES = ("input_ids", "loss_mask", "hidden_states", "visual_score")
 DRAFT_ARCHITECTURE = "DFlashDraftModel"
 DFLASH2_DRAFT_ARCHITECTURE = "DFlash2DraftModel"
 COMPATIBLE_DRAFT_ARCHITECTURES = frozenset(
@@ -82,6 +86,9 @@ def resume_contract(_config, draft_model, training_model):
         "dflash_kl_scale": float(training_model.kl_scale),
         "dflash_kl_decay": float(training_model.kl_decay),
     }
+    if training_model.loss_type == "mmflash":
+        contract["mmflash_smoothing"] = training_model.mmflash_smoothing
+        contract["mmflash_visual_alpha"] = training_model.visual_alpha
     if getattr(draft_model, "candidate_selector", None) is not None:
         method_config = dict(getattr(draft_model.config, "dflash_config", None) or {})
         contract.update(
@@ -214,6 +221,16 @@ def algorithm_spec() -> AlgorithmSpec:
                 ),
             ),
             FeatureContract(
+                mode=FeatureMode.OFFLINE,
+                modality="multimodal",
+                required_tensors=SCORED_VLM_FEATURES,
+                storage=OfflineStorageContract(
+                    format="specforge_hidden_states_v1",
+                    required_tensors=SCORED_VLM_FEATURES,
+                    normalizer=SCORED_VLM_NORMALIZER_ID,
+                ),
+            ),
+            FeatureContract(
                 mode=FeatureMode.STREAMING,
                 modality="text",
                 required_tensors=ready,
@@ -279,6 +296,17 @@ def algorithm_providers() -> AlgorithmProviders:
                 build_reader=partial(build_offline_reader, ALGORITHM_NAME),
                 build_normalizer=build_offline_normalizer,
                 build_collator=collator,
+            ),
+            OfflineDataProvider(
+                modality="multimodal",
+                normalizer_id=SCORED_VLM_NORMALIZER_ID,
+                build_reader=partial(
+                    build_offline_reader,
+                    ALGORITHM_NAME,
+                    feature_keys=SCORED_VLM_FEATURES,
+                ),
+                build_normalizer=build_scored_vlm_normalizer,
+                build_collator=build_scored_vlm_collator,
             ),
         ),
         server_streaming=(
