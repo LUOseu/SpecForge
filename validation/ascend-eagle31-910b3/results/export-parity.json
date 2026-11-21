@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "arms": {
+    "eagle31": {
+      "step": 8,
+      "exact_tensors": 18,
+      "exact_bytes": 366389632,
+      "fc_norm": true,
+      "norm_output": true,
+      "norm_weights": {
+        "fc_norm.0.weight": {
+          "dtype": "torch.bfloat16",
+          "elements": 2048,
+          "sha256": "045ad01d502fc9de7069fd37169060ce79a14a289444ffcd9881ec367a554644",
+          "nonunit_elements": 0
+        },
+        "fc_norm.1.weight": {
+          "dtype": "torch.bfloat16",
+          "elements": 2048,
+          "sha256": "045ad01d502fc9de7069fd37169060ce79a14a289444ffcd9881ec367a554644",
+          "nonunit_elements": 0
+        },
+        "fc_norm.2.weight": {
+          "dtype": "torch.bfloat16",
+          "elements": 2048,
+          "sha256": "045ad01d502fc9de7069fd37169060ce79a14a289444ffcd9881ec367a554644",
+          "nonunit_elements": 0
+        },
+        "norm.weight": {
+          "dtype": "torch.bfloat16",
+          "elements": 2048,
+          "sha256": "045ad01d502fc9de7069fd37169060ce79a14a289444ffcd9881ec367a554644",
+          "nonunit_elements": 0
+        }
+      },
+      "vocabulary_sha256": {
+        "d2t": "555df4b8c327df966edf67cfc96b21a88be338c3c2892ec2523ec7a2af59296f",
+        "t2d": "fe3fe8ea058e221b2192208f6b6e8b2c2ca414c3bc7e948f9771208d05d16627"
+      },
+      "sglang_commit": "c757c4bb7c55d1eb69fdb2bdc6e6fb8507acb7a0"
+    },
+    "eagle3": {
+      "step": 8,
+      "exact_tensors": 15,
+      "exact_bytes": 366377344,
+      "fc_norm": false,
+      "norm_output": false,
+      "norm_weights": {
+        "norm.weight": {
+          "dtype": "torch.bfloat16",
+          "elements": 2048,
+          "sha256": "045ad01d502fc9de7069fd37169060ce79a14a289444ffcd9881ec367a554644",
+          "nonunit_elements": 0
+        }
+      },
+      "vocabulary_sha256": {
+        "d2t": "555df4b8c327df966edf67cfc96b21a88be338c3c2892ec2523ec7a2af59296f",
+        "t2d": "fe3fe8ea058e221b2192208f6b6e8b2c2ca414c3bc7e948f9771208d05d16627"
+      },
+      "sglang_commit": "c757c4bb7c55d1eb69fdb2bdc6e6fb8507acb7a0"
+    }
+  }
+}

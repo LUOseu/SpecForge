@@ -1,0 +1,134 @@
+{
+  "eagle3": {
+    "method": "eagle3",
+    "run_id": "qwen30b-910b3-eagle3",
+    "checkpoint_id": "qwen30b-910b3-eagle3-step8",
+    "optimizer_updates": 8,
+    "loss_by_optimizer_update": {
+      "1": 16.686792373657227,
+      "2": 26.47317886352539,
+      "3": 6.4318342208862305,
+      "4": 31.586559295654297,
+      "5": 29.697463989257812,
+      "6": 17.790977478027344,
+      "7": 26.877309799194336,
+      "8": 30.071533203125
+    },
+    "training_command_wall_seconds_including_initialization_and_checkpoint": 51,
+    "producer": {
+      "captured": 8,
+      "failed": 0,
+      "pending": 0,
+      "leased": 0,
+      "capture_sequence_lengths": [
+        478,
+        109,
+        44,
+        481,
+        299,
+        241,
+        159,
+        226
+      ],
+      "auxiliary_hidden_width": 6144,
+      "last_hidden_width": 2048
+    },
+    "sglang_export": {
+      "fc_norm": false,
+      "norm_output": false,
+      "auxiliary_layers": [
+        1,
+        23,
+        44
+      ],
+      "per_feature_norm_tensors": []
+    },
+    "artifacts": {
+      "qwen30b-910b3-eagle3-step8/config.json": {
+        "bytes": 1749,
+        "sha256": "afa86caffa43ebd675b05ab18477553ce6c2f489491d0ae8dbbc45c65c106c4b"
+      },
+      "qwen30b-910b3-eagle3-step8/training_state.pt": {
+        "bytes": 366391688,
+        "sha256": "90aefa9e8f7620841272d1a5b26c39ad9d5cce9ed6a48a4f8b82613fff8379f9"
+      },
+      "sglang-export/config.json": {
+        "bytes": 1835,
+        "sha256": "dac6d9a5b0084b424fe76f30e86199ab86adbdfcf0dac5ecee2ec2b2600f8c9e"
+      },
+      "sglang-export/model.safetensors": {
+        "bytes": 366378848,
+        "sha256": "8f84352a9bde234a915ae942e55bbe63f1e7900f3acbec1f2aae336568f58a72"
+      }
+    },
+    "optimizer_and_rng_rank_0_bytes": 2195843073
+  },
+  "eagle3.1": {
+    "method": "eagle3.1",
+    "run_id": "qwen30b-910b3-eagle3.1",
+    "checkpoint_id": "qwen30b-910b3-eagle3.1-step8",
+    "optimizer_updates": 8,
+    "loss_by_optimizer_update": {
+      "1": 16.780723571777344,
+      "2": 26.730792999267578,
+      "3": 6.382236957550049,
+      "4": 31.563369750976562,
+      "5": 29.325170516967773,
+      "6": 17.483997344970703,
+      "7": 26.40461540222168,
+      "8": 29.74747085571289
+    },
+    "training_command_wall_seconds_including_initialization_and_checkpoint": 77,
+    "producer": {
+      "captured": 8,
+      "failed": 0,
+      "pending": 0,
+      "leased": 0,
+      "capture_sequence_lengths": [
+        478,
+        109,
+        44,
+        481,
+        299,
+        241,
+        159,
+        226
+      ],
+      "auxiliary_hidden_width": 6144,
+      "last_hidden_width": 2048
+    },
+    "sglang_export": {
+      "fc_norm": true,
+      "norm_output": true,
+      "auxiliary_layers": [
+        1,
+        23,
+        44
+      ],
+      "per_feature_norm_tensors": [
+        "fc_norm.0.weight",
+        "fc_norm.1.weight",
+        "fc_norm.2.weight"
+      ]
+    },
+    "artifacts": {
+      "qwen30b-910b3-eagle3.1-step8/config.json": {
+        "bytes": 1747,
+        "sha256": "45fdd5e5d66cad1a9db219c96da41bf31476bb3942473dfecaaccb868a682592"
+      },
+      "qwen30b-910b3-eagle3.1-step8/training_state.pt": {
+        "bytes": 366405469,
+        "sha256": "d1ad131f70b88b8ea4693a86abe06dfd9bd609324b73bda5fbdbabeadea2bd02"
+      },
+      "sglang-export/config.json": {
+        "bytes": 1833,
+        "sha256": "3ef747a377cfb743067f4b64f759595af5a0eeeb37f6f0399c875f53fb00e66c"
+      },
+      "sglang-export/model.safetensors": {
+        "bytes": 366391392,
+        "sha256": "1eb86983cca612c6db58c363a70f640efdc2e52e7068e5f5a8ecff32d2c99853"
+      }
+    },
+    "optimizer_and_rng_rank_0_bytes": 2195921117
+  }
+}

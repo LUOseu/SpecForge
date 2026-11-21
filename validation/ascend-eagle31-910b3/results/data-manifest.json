@@ -1,0 +1,40 @@
+{
+  "source": "Aeala/ShareGPT_Vicuna_unfiltered",
+  "source_revision": "8b0048ad6ae8c22f46a78c15559dec98feef5539",
+  "file": "ShareGPT_V4.3_unfiltered_cleaned_split.json",
+  "source_prefix_bytes": 8388608,
+  "source_prefix_sha256": "ce09ad630e0d54d87a7df3d4cf66815d5184c1ddbea9827b4304ff7392641bbb",
+  "target": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+  "target_revision": "0d7cf23991f47feeb3a57ecb4c9cee8ea4a17bfe",
+  "max_length": 512,
+  "template": "qwen",
+  "train_ids": [
+    "QWJhYvA_0",
+    "i6IyJda_0",
+    "A5AbcES_0",
+    "hRPPgZT_0",
+    "IWkMGRK_0",
+    "DhelrJT_0",
+    "wNBG8Gp_0",
+    "idMLILF_0"
+  ],
+  "held_out_ids": [
+    "tcgsdUu_0",
+    "sUO0XFL_0",
+    "6YMEjv4_0",
+    "795KMlQ_0",
+    "UQWWfNB_0",
+    "BmS3AX0_10",
+    "juND8Ql_0",
+    "vH787Fr_0"
+  ],
+  "train_samples": 8,
+  "train_input_tokens": 2037,
+  "train_supervised_tokens": 1363,
+  "tokenizer_json_sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+  "sha256": {
+    "held-out.jsonl": "cd3c4229aa3da04eac332712060fb5b03d651fec986cd84938c7586512126383",
+    "train.jsonl": "9167ccfca6ddfd24c93ccfffb1135cf9444eec398ceeb1dff1e0d8c5556c53b2",
+    "vocab.pt": "290067498f725037fd3c8e77be907127beb5cbe2b9ca690c0330ad1bb7e054da"
+  }
+}
