@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "hardware": "Ascend 910B3",
+  "ranks": 2,
+  "backend": "HCCL",
+  "input": "Deterministic synthetic StepOutput instances with unequal per-rank token and accuracy masses and counts exceeding 2**24",
+  "entrypoint": "specforge.eval.Evaluator.run, stock class with proposed changes applied",
+  "implementation_sha256": "8f845a58a6b811f98b5bade6b6643005bf752304f2d5000fd99f2005702b9d2b",
+  "baseline": "Both ranks raised RuntimeError: HCCL allreduce: Unsupported data type at::kDouble",
+  "reference": "Single-process CPU float64 Evaluator on all records, padding missing rank-tail positions for the ragged case",
+  "comparison": "Every emitted scalar and per-position value checked on each rank",
+  "rtol": 1e-14,
+  "atol": 1e-14,
+  "automated_test": "TestEvaluatorDataParallel.test_hccl_reduction_and_ragged_shards passed, 2 NPUs",
+  "cpu_suite": "25 passed, 1 NPU-only test skipped on host, includes 2-process Gloo; NPU-only test then ran on 910B3",
+  "metrics": {
+    "scalar": {
+      "eval/avg_loss": 1.0000044107360893,
+      "eval/avg_acc": 0.3472222222222222,
+      "eval/simulated_acc_len": 0.3472222222222222
+    },
+    "position": {
+      "eval/avg_loss": 1.0000044107360893,
+      "eval/avg_acc": 0.999999761581833,
+      "eval/per_position_acc": [
+        0.999999761581833,
+        0.9999992847456696,
+        0.9999988079097335
+      ],
+      "eval/simulated_acc_len": 2.9999966621480496,
+      "eval/acceptance_rate_0": 0.12500055134201116,
+      "eval/expected_acceptance_0": 0.12500055134201116,
+      "eval/acceptance_rate_1": 0.25000055134201116,
+      "eval/expected_acceptance_1": 0.25000055134201116,
+      "eval/acceptance_rate_2": 0.37500055134201116,
+      "eval/expected_acceptance_2": 0.37500055134201116,
+      "eval/ploss_0": 0.2500011026840223,
+      "eval/ploss_1": 0.5000011026840223,
+      "eval/ploss_2": 0.7500011026840223
+    },
+    "empty_peer": {
+      "eval/avg_loss": 1.0000008344646787,
+      "eval/avg_acc": 0.9999998807907602,
+      "eval/per_position_acc": [
+        0.9999998807907602,
+        0.9999996423723232,
+        0.999999403953943
+      ],
+      "eval/simulated_acc_len": 2.9999983310712395,
+      "eval/acceptance_rate_0": 0.12500010430808484,
+      "eval/expected_acceptance_0": 0.12500010430808484,
+      "eval/acceptance_rate_1": 0.25000010430808484,
+      "eval/expected_acceptance_1": 0.25000010430808484,
+      "eval/acceptance_rate_2": 0.37500010430808484,
+      "eval/expected_acceptance_2": 0.37500010430808484,
+      "eval/ploss_0": 0.2500002086161697,
+      "eval/ploss_1": 0.5000002086161697,
+      "eval/ploss_2": 0.7500002086161697
+    },
+    "globally_empty": {},
+    "additive": {
+      "eval/avg_loss": 0.9999992847460106,
+      "eval/avg_acc": 0.999999523163666,
+      "eval/simulated_acc_len": 0.999999523163666
+    },
+    "mixed": {
+      "eval/avg_loss": 1.0000044107360893,
+      "eval/avg_acc": 0.9999998211863428,
+      "eval/per_position_acc": [
+        0.9999998211863428,
+        0.9999994635591243,
+        0.9999991059320337
+      ],
+      "eval/simulated_acc_len": 2.999997496610142,
+      "eval/acceptance_rate_0": 0.1250005289904026,
+      "eval/expected_acceptance_0": 0.1250005289904026,
+      "eval/acceptance_rate_1": 0.2500005289904026,
+      "eval/expected_acceptance_1": 0.2500005289904026,
+      "eval/acceptance_rate_2": 0.3750005289904026,
+      "eval/expected_acceptance_2": 0.3750005289904026,
+      "eval/ploss_0": 0.2500010579808052,
+      "eval/ploss_1": 0.5000010579808052,
+      "eval/ploss_2": 0.7500010579808052
+    },
+    "ragged": {
+      "eval/avg_loss": 1.0000044107360893,
+      "eval/avg_acc": 0.999999761581833,
+      "eval/per_position_acc": [
+        0.999999761581833,
+        0.75,
+        0.6153846153846154
+      ],
+      "eval/simulated_acc_len": 2.211537934267515,
+      "eval/acceptance_rate_0": 0.12500055134201116,
+      "eval/expected_acceptance_0": 0.12500055134201116,
+      "eval/acceptance_rate_1": 7.748590427093364e-07,
+      "eval/expected_acceptance_1": 7.748590427093364e-07,
+      "eval/acceptance_rate_2": 9.387715325132344e-07,
+      "eval/expected_acceptance_2": 9.387715325132344e-07,
+      "eval/ploss_0": 0.2500011026840223,
+      "eval/ploss_1": 1.5497180854186727e-06,
+      "eval/ploss_2": 1.8775430650264688e-06
+    }
+  }
+}

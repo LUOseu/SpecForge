@@ -19,6 +19,11 @@ The training trace wraps the normal SpecForge CLI at implementation commit `c072
 
 All five held-out measurements decreased for both methods. The evidence covers one seed and 16 held-out examples. The two runs started with bit-identical common parameters, consumed the same 400 examples in the same order, and produced full step-100 checkpoints with finite Adam moments. [Matched-run audit](matched_run_audit.json) · [EAGLE3 CSV](eagle3/steps.csv) · [EAGLE3.1 CSV](eagle31/steps.csv)
 
+
+The native SpecForge evaluator at `d6630d57eab4f63e3891e45aa5b695962a687f4e` reproduced all four endpoint losses exactly on the same four NPUs and 16 held-out examples. Each replay either recreated the seed-42 initialization or restored the full step-100 checkpoint and called `evaluate_configured()` without an optimizer update. The intervening evaluations in the figure come from the training trace. [EAGLE3 initialization](eagle3/native-step0.json) · [EAGLE3 step 100](eagle3/native-step100.json) · [EAGLE3.1 initialization](eagle31/native-step0.json) · [EAGLE3.1 step 100](eagle31/native-step100.json)
+
+A separate two-NPU test compared every native validation metric to a CPU FP64 reference across seven cases, including empty and unequal shards. [HCCL regression record](parity/native_evaluator_hccl.json)
+
 ## Reproduce
 
 Prepare the pinned target model, fixed vocab and the source ShareGPT and held-out files with the [formal training data preparation](https://github.com/LUOseu/SpecForge/tree/56771b3e2241a9a3be7e0d9f688798d9f5240497/validation/ascend-eagle31-formal). Use the Ascend environment from the same bundle. Captures use the SpecForge SGLang plugin on loopback port 30186, Mooncake TCP metadata on 35880 and its master on 35551. The capture script checks the recorded source and vocabulary digests. Greedy regeneration on another runtime may yield different tokens. Keep an independently regenerated validation set identified by its own checksums.
@@ -34,6 +39,12 @@ export SPECFORGE_REPO TARGET_MODEL VOCAB_MAP ASCEND_RT_VISIBLE_DEVICES
 python "$BUNDLE/tools/run_pair.py" --root "$RUN" eagle3 eagle31
 python "$BUNDLE/tools/audit_training.py" "$RUN" eagle3 eagle31
 python "$BUNDLE/render_loss.py" --data-dir "$RUN" --output "$RUN/training-loss.png" --updates 100 --setup "4 × Ascend 910B3  ·  Ulysses 2 × Ring 2  ·  Maximum input length of 1,536 tokens"
+```
+
+To repeat the endpoint checks, set `EVAL_REPO` to a checkout of `d6630d57eab4f63e3891e45aa5b695962a687f4e` and keep both trained checkpoints and validation CSVs under the same `RUN` directory.
+
+```bash
+python "$BUNDLE/tools/eval_only.py" "$RUN" "$EVAL_REPO" 0 100
 ```
 
 ## Correctness and performance checks

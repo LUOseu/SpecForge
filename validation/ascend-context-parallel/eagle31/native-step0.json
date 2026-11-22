@@ -1,0 +1,27 @@
+{
+  "global_step": 0,
+  "additional_optimizer_steps": 0,
+  "reference_holdout_loss": 17.395340816117823,
+  "native_minus_reference": 0.0,
+  "evaluator_sha256": "8f845a58a6b811f98b5bade6b6643005bf752304f2d5000fd99f2005702b9d2b",
+  "world_size": 4,
+  "metrics": {
+    "eval/avg_loss": 17.395340816117823,
+    "eval/avg_acc": 0.0,
+    "eval/per_position_acc": [
+      0.0,
+      0.0,
+      0.00015885623510722796
+    ],
+    "eval/simulated_acc_len": 0.0,
+    "eval/acceptance_rate_0": 0.0006694826649523014,
+    "eval/expected_acceptance_0": 0.0006694826649523014,
+    "eval/acceptance_rate_1": 0.0006733891338898734,
+    "eval/expected_acceptance_1": 0.0006733891338898734,
+    "eval/acceptance_rate_2": 0.0006755291300937141,
+    "eval/expected_acceptance_2": 0.0006755291300937141,
+    "eval/ploss_0": 6.551152707189215,
+    "eval/ploss_1": 6.529150817843162,
+    "eval/ploss_2": 6.521606946084867
+  }
+}
