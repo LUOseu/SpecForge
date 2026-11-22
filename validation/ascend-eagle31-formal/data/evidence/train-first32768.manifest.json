@@ -1,0 +1,34 @@
+{
+  "split": "train",
+  "rows": 32768,
+  "visited_source_prefix": 32923,
+  "tokens": 17105965,
+  "supervised_tokens": 12350505,
+  "finish": {
+    "length": 23238,
+    "stop": 9530
+  },
+  "prompt_groups": {
+    "short": 26217,
+    "medium": 4746,
+    "long": 1805
+  },
+  "sequence_min": 22,
+  "sequence_p50": 458,
+  "sequence_max": 1536,
+  "prompt_source": "first-user-only",
+  "answer_source": "target-only greedy SGLang output_ids",
+  "temperature": 0,
+  "max_new_tokens": [
+    384,
+    640
+  ],
+  "minimum_answer_tokens": 8,
+  "source_manifest_sha256": "e6fcad64654b60c0761845eb8056c4500f0052fa129499dc4aaa8477cd5c2835",
+  "extension_manifest_sha256": "4dd7887dda32485caadf21a4087a457e2ca9d19933ba018c0144b6d6fd6c6b24",
+  "files": {
+    "train-first32768.jsonl": "63a9624465315ca4a318122649d25c559cde4dfe2b03141a03ebe22b153345ba",
+    "train-slice24576-32768.jsonl": "f9ca26ed71351ef11fd9d1fc61bc51d9670b334d9252232db0067804f52ca637",
+    "train-first32768.audit.jsonl": "a6aaabda81e569f03c61c3adaec907f28d6d37103a595a169160e150ac0430c5"
+  }
+}

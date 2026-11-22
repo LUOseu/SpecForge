@@ -1,0 +1,16 @@
+{
+  "run_id": "original8k-ddp4-b2-v1",
+  "last_logged_step": 1024,
+  "logged_steps": 256,
+  "logging_interval": 4,
+  "missing_logged_steps": [],
+  "first_loss": 21.92335319519043,
+  "last_loss": 13.318224906921387,
+  "mean_last_16_logged_losses": 12.17546260356903,
+  "last_lr": 0.0,
+  "median_steady_seconds_per_update": 0.6520128936972469,
+  "excluded_from_steady": "initial logged steps below 16 and first logged window after each checkpoint",
+  "raw_train_log_bytes_at_snapshot": 2174864,
+  "raw_train_log_sha256_at_snapshot": "14a1289fa5f794e70c73a01ef831aab481b149b6ac06e97fd25570e9eefefdb2",
+  "per_depth_training_metrics": "acc_0..6, ploss_0..6, kl_loss_0..6, acceptance_rate_0..6; serving acceptance measured separately"
+}

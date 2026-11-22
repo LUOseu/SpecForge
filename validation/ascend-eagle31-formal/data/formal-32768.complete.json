@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "services_may_release": true,
+  "accepted": {
+    "train": 32768,
+    "heldout": 128
+  },
+  "sqlite_accepted": {
+    "heldout": 128,
+    "train": 32768
+  },
+  "outstanding_http_futures": 0,
+  "worker_exited": true,
+  "final_worker_pid": 47948,
+  "audit_passed": {
+    "train": true,
+    "heldout": true
+  },
+  "stage_hashes": {
+    "train": {
+      "data": "63a9624465315ca4a318122649d25c559cde4dfe2b03141a03ebe22b153345ba",
+      "manifest": "6bc4ac122b2ac166b0a3894a493e0cbd3ea4ea265630cd8222825d27ea470114",
+      "audit": "fe9133dcda43e404562e67d34e6664fcab55fa4a0bfc4646dce3902b63d112c4"
+    },
+    "heldout": {
+      "data": "ec3f1edb952eca5981fcd36e13ebe3f860174391b7f0165a68f536ef3ef85b81",
+      "manifest": "23bc826d30fc8e57f5b78d816099a22c7be139561a47947a2aaaafe84bd1bf10",
+      "audit": "1348e03b225ddb6d6952d969db54792f04f066f3c88fa941a070f4162b2ccf68"
+    }
+  },
+  "token_counts": {
+    "train": {
+      "accepted": 32768,
+      "input_tokens": 17105965,
+      "supervised_tokens": 12350505
+    },
+    "heldout": {
+      "accepted": 128,
+      "input_tokens": 76671,
+      "supervised_tokens": 51027
+    }
+  },
+  "done_sha256": "3a9b914389643dad1d7529e1d4c461c59f02bc5e08058432e7916272e1cfeefd",
+  "time_unix": 1795287817.2891273
+}

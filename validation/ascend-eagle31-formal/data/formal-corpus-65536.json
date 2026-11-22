@@ -1,0 +1,49 @@
+{
+  "scope": "Unique prepared training data, single pass; repeated epochs and actual optimizer consumption are measured separately.",
+  "populations": [
+    {
+      "population": "ShareGPT original answers",
+      "rows": 8192,
+      "sequence_tokens": 3042758,
+      "masked_tokens": 2334532,
+      "train_sha256": "d88c14ff9aaf4cbfe77ea3dbba794f4f5e815a4cfea747865c7c9bc8e73df83a"
+    },
+    {
+      "population": "UltraChat published original answers",
+      "rows": 32768,
+      "sequence_tokens": 16101114,
+      "masked_tokens": 11058669,
+      "train_sha256": "1378d3d86ac4013e95f771bf59d1ea3573b772492022aadca06116a23ca5d742"
+    },
+    {
+      "population": "Fresh Qwen3-30B-A3B-Instruct-2507 answers",
+      "rows": 24576,
+      "sequence_tokens": 12259497,
+      "masked_tokens": 9337931,
+      "train_sha256": "38d78a80e5f47915f4117837abc637339c8a886fab16724e7d2c33d1fc58911a",
+      "by_prompt_source": {
+        "ShareGPT user prompts": {
+          "rows": 18746,
+          "total_tokens": 8820733,
+          "supervised_target_tokens": 7196854,
+          "length_rows": 13878,
+          "stop_rows": 4868
+        },
+        "UltraChat train_sft user prompts": {
+          "rows": 5830,
+          "total_tokens": 3438764,
+          "supervised_target_tokens": 2141077,
+          "length_rows": 3878,
+          "stop_rows": 1952
+        }
+      }
+    }
+  ],
+  "total": {
+    "rows": 65536,
+    "sequence_tokens": 31403369,
+    "masked_tokens": 22731132
+  },
+  "disjointness_evidence": "formal-split-audit.json",
+  "final_teacher_stage_audit": "evidence/train-first24576.check.json"
+}

@@ -1,0 +1,48 @@
+{
+  "source": {
+    "repo": "HuggingFaceH4/ultrachat_200k",
+    "revision": "8049631c405ae6576f93f445c6b8166f76f5505a",
+    "split": "train_sft",
+    "files": [
+      {
+        "path": "train_sft-00000-of-00003-a3ecf92756993583.parquet",
+        "sha256": "afa8fa7426081b2a0e732fb50dbb5cd402a28ad5f0dbe66c0d996d63e7220727",
+        "bytes": 243999189
+      },
+      {
+        "path": "train_sft-00001-of-00003-0a1804bcb6ae68c6.parquet",
+        "sha256": "c8230190bc8b29084c974ff32f05589b458fad1908fc4b2fb2b9e1e9f7921f03",
+        "bytes": 243897199
+      },
+      {
+        "path": "train_sft-00002-of-00003-ee46ed25cfae92c6.parquet",
+        "sha256": "6fe7d2a5e95cf660f972ecaf304aa5632d7f53384e4b0e0d0f44d9c96733c03e",
+        "bytes": 244131731
+      }
+    ]
+  },
+  "assistant_source": "original UltraChat SFT assistant text",
+  "rows": 32768,
+  "unique_prompts": 32768,
+  "input_tokens": 16101114,
+  "supervised_tokens": 11058669,
+  "vocab_sha256": "bb23e71ff5bccec5b91cbf18b9c2c8a4022d606cbfd7a251be21ed54b9dd17f7",
+  "mapped_supervised_fraction": 0.9676436648931259,
+  "token_min": 26,
+  "token_max": 1510,
+  "tokens_above_640": 8596,
+  "tokenizer_sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+  "sharegpt_blocklist_sha256": "c727e4467a40e841201f0686cf9fa87659ea3ff119ff4aa64c305f59513f1824",
+  "eval_denylist_sha256": "a7694a26eb43f6ff7b9d55cdef0b1cd879ed65a2c0308552bf6c42464aa136fa",
+  "selection": "first valid rows in ascending SHA256(online-ultrachat-original-v1/ + punctuation-insensitive hash); bucket 0-49",
+  "files": {
+    "families.jsonl": {
+      "bytes": 12167393,
+      "sha256": "8b9235710ad844ad34c5302da7939d9a805646e9c8ca5ff2d581916d83d7f4f3"
+    },
+    "train.jsonl": {
+      "bytes": 111202670,
+      "sha256": "1378d3d86ac4013e95f771bf59d1ea3573b772492022aadca06116a23ca5d742"
+    }
+  }
+}

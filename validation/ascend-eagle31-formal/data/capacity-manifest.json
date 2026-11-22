@@ -1,0 +1,49 @@
+{
+  "base_manifest_sha256": "e6fcad64654b60c0761845eb8056c4500f0052fa129499dc4aaa8477cd5c2835",
+  "base_train_rows": 12800,
+  "base_train_sha256": "f189a03dcebdcc291e9cfc0fdd58db9571298b3a0aaef667a8cedf1ca96c7ef0",
+  "unchanged_train_prefix": true,
+  "sharegpt_eligible_train": 18898,
+  "sharegpt_eligible_heldout": 1412,
+  "sharegpt_original_train": 8192,
+  "sharegpt_tail_rows": 6098,
+  "ultrachat_source": "HuggingFaceH4/ultrachat_200k",
+  "ultrachat_split": "train_sft",
+  "ultrachat_revision": "8049631c405ae6576f93f445c6b8166f76f5505a",
+  "source_shards": {
+    "train_sft-00000-of-00003-a3ecf92756993583.parquet": "afa8fa7426081b2a0e732fb50dbb5cd402a28ad5f0dbe66c0d996d63e7220727",
+    "train_sft-00001-of-00003-0a1804bcb6ae68c6.parquet": "c8230190bc8b29084c974ff32f05589b458fad1908fc4b2fb2b9e1e9f7921f03",
+    "train_sft-00002-of-00003-ee46ed25cfae92c6.parquet": "6fe7d2a5e95cf660f972ecaf304aa5632d7f53384e4b0e0d0f44d9c96733c03e"
+  },
+  "ultrachat_counts": {
+    "ultra_source_rows": 207865,
+    "reserved_original_half": 103978,
+    "duplicate_prompt": 6,
+    "outside_token_window": 3226
+  },
+  "ultrachat_eligible_train": 100553,
+  "ultrachat_groups": [
+    83394,
+    11653,
+    5506
+  ],
+  "blocked": {
+    "counts": {
+      "original": 8192,
+      "train": 18898,
+      "heldout": 1412,
+      "smoke": 16
+    },
+    "normalized": 28518,
+    "near": 28518,
+    "files": {
+      "normalized.sha256": "87988f8733af3347272417ae63fbe262750c16ef87ce8ea3f89853b96f2a95ba",
+      "near.sha256": "2d774860258aa1965677d6f3979c1993bb0f59eaeff515f5eeb0fa50b496f243"
+    }
+  },
+  "blocked_eval_sha256": "a7694a26eb43f6ff7b9d55cdef0b1cd879ed65a2c0308552bf6c42464aa136fa",
+  "total_train_candidates": 119451,
+  "tail_rows": 106651,
+  "tail_sha256": "daae85c0cc321af5bfae00ebc9e63112e410d3e7e3d4f5f453ac208b2f6cf3ff",
+  "schedule": "all remaining eligible ShareGPT candidates, then UltraChat first-user prompts in half-buckets 50..99, ordered by seeded length strata"
+}

@@ -1,0 +1,16 @@
+{
+  "run_id": "ultrachat32768-e2-ddp4-b2-v1",
+  "last_logged_step": 8192,
+  "logged_steps": 1024,
+  "logging_interval": 8,
+  "missing_logged_steps": [],
+  "first_loss": 10.87033462524414,
+  "last_loss": 3.677557945251465,
+  "mean_last_16_logged_losses": 4.744043976068497,
+  "last_lr": 0.0,
+  "median_steady_seconds_per_update": 0.6801328859874047,
+  "excluded_from_steady": "initial logged steps below 16 and first logged window after each checkpoint",
+  "raw_train_log_bytes_at_snapshot": 8730322,
+  "raw_train_log_sha256_at_snapshot": "23a7ed0eaf65869d2b4fb2fc0c3bdc5a180ee67e68a5de78f456daa03ea8e2e5",
+  "per_depth_training_metrics": "acc_0..6, ploss_0..6, kl_loss_0..6, acceptance_rate_0..6; serving acceptance measured separately"
+}

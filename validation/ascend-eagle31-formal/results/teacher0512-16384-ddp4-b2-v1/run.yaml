@@ -1,0 +1,61 @@
+model:
+  target_model_path: /path/to/target
+  vocab_mapping_path: /path/to/campaign/data/sf-e31-scale-original8192/vocab.pt
+  target_backend: sglang
+  embedding_key: model.embed_tokens.weight
+  torch_dtype: bfloat16
+draft: /path/to/SpecForge/specforge/config/draft/presets/qwen3-30B-A3B-eagle3.1.yaml
+data:
+  prompts_path: /path/to/campaign/train/campaign/teacher-rows-0512-16384.jsonl
+  max_length: 1536
+  chat_template: qwen
+  build_dataset_num_proc: 1
+  dataloader_num_workers: 0
+  cache_dir: /path/to/campaign/train/runs/teacher0512-16384-ddp4-b2-v1/cache
+training:
+  num_epochs: 1
+  max_steps: 1984
+  batch_size: 2
+  accumulation_steps: 1
+  learning_rate: 5.0e-05
+  warmup_ratio: 0.02
+  lr_scheduler: cosine
+  max_grad_norm: 0.5
+  objective_options:
+    ttt_length: 7
+  attention_backend: sdpa
+  tp_size: 1
+  fsdp_sharding: NO_SHARD
+  save_interval: 256
+  max_checkpoints: 4
+  log_interval: 8
+  dist_timeout: 30
+  seed: 42
+runtime:
+  producer_lease: 2
+  producer_concurrency: 1
+  in_flight_high_watermark: 32
+  in_flight_low_watermark: 16
+run_id: teacher0512-16384-ddp4-b2-v1
+output_dir: /path/to/campaign/train/runs/teacher0512-16384-ddp4-b2-v1
+tracking:
+  report_to: none
+deployment:
+  mode: disaggregated
+  trainer:
+    nnodes: 1
+    nproc_per_node: 4
+  disaggregated:
+    control_dir: /path/to/campaign/train/runs/teacher0512-16384-ddp4-b2-v1/control
+    consumer_state_dir: /path/to/campaign/train/runs/teacher0512-16384-ddp4-b2-v1/consumer
+    backend: mooncake
+    server_urls:
+    - http://127.0.0.1:30000
+    - http://127.0.0.1:30000
+    - http://127.0.0.1:30000
+    - http://127.0.0.1:30000
+    mooncake_metadata_server: http://127.0.0.1:35880/metadata
+    mooncake_master_server_addr: 127.0.0.1:35551
+    mooncake_protocol: tcp
+initialization:
+  checkpoint: /path/to/campaign/train/runs/ultrachat32768-e2-ddp4-b2-v1/ultrachat32768-e2-ddp4-b2-v1-step8192

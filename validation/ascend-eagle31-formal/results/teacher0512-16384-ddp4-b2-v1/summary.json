@@ -1,0 +1,16 @@
+{
+  "run_id": "teacher0512-16384-ddp4-b2-v1",
+  "last_logged_step": 1984,
+  "logged_steps": 248,
+  "logging_interval": 8,
+  "missing_logged_steps": [],
+  "first_loss": 10.287972450256348,
+  "last_loss": 6.416129112243652,
+  "mean_last_16_logged_losses": 7.38546484708786,
+  "last_lr": 0.0,
+  "median_steady_seconds_per_update": 0.6821886910474859,
+  "excluded_from_steady": "initial logged steps below 16 and first logged window after each checkpoint",
+  "raw_train_log_bytes_at_snapshot": 2125048,
+  "raw_train_log_sha256_at_snapshot": "4a792a81b3b4548eb5fbf7487133ce95565507162cc9e1579b12388abf017e61",
+  "per_depth_training_metrics": "acc_0..6, ploss_0..6, kl_loss_0..6, acceptance_rate_0..6; serving acceptance measured separately"
+}

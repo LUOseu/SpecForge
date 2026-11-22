@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "counts": {
+    "original_sharegpt": 8192,
+    "teacher_train": 119451,
+    "teacher_heldout": 256,
+    "original_ultrachat": 32768
+  },
+  "cross_split_overlap": {
+    "original_sharegpt__teacher_train": {
+      "family": 0,
+      "normalized": 0,
+      "near": 0
+    },
+    "original_sharegpt__teacher_heldout": {
+      "family": 0,
+      "normalized": 0,
+      "near": 0
+    },
+    "original_sharegpt__original_ultrachat": {
+      "family": 0,
+      "normalized": 0,
+      "near": 0
+    },
+    "teacher_train__teacher_heldout": {
+      "family": 0,
+      "normalized": 0,
+      "near": 0
+    },
+    "teacher_train__original_ultrachat": {
+      "family": 0,
+      "normalized": 0,
+      "near": 0
+    },
+    "teacher_heldout__original_ultrachat": {
+      "family": 0,
+      "normalized": 0,
+      "near": 0
+    }
+  },
+  "denied_sha256": "a7694a26eb43f6ff7b9d55cdef0b1cd879ed65a2c0308552bf6c42464aa136fa",
+  "external_eval_overlap": {
+    "original_sharegpt": 0,
+    "teacher_train": 0,
+    "teacher_heldout": 0,
+    "original_ultrachat": 0
+  }
+}

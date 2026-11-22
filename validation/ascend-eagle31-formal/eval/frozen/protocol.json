@@ -1,0 +1,44 @@
+{
+  "seed": "scale-20261121/external-eval-v1",
+  "sources": {
+    "train.parquet": [
+      "https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/main/train-00000-of-00001.parquet",
+      "ea82612ea9582142387730c793eb67d3b12849002bc0b7fa6f8efafa7351419d"
+    ],
+    "test.parquet": [
+      "https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/main/test-00000-of-00001.parquet",
+      "ee7b8da9e381df27b9e3f7758a159ab2bdaa4dbaa910546cbbc47e0cb44e4f59"
+    ],
+    "mtbench.jsonl": [
+      "https://huggingface.co/datasets/HuggingFaceH4/mt_bench_prompts/resolve/e3a795c5e9a82ee40611c416b8a7786c73198991/raw/question.jsonl",
+      "420ae1d63cbf0f499d8afc3b28d86714e77f13e44c133eedf942ed16c544dd34"
+    ]
+  },
+  "gsm8k_repo": "openai/gsm8k",
+  "gsm8k_revision": "740312add88f781978c0658806c59bc2815b9866",
+  "mt_bench_repo": "HuggingFaceH4/mt_bench_prompts",
+  "mt_bench_revision": "e3a795c5e9a82ee40611c416b8a7786c73198991",
+  "tokenizer_sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+  "math_instruction": "Solve the problem. Show your calculation briefly and finish with a separate line in the form #### <number>.",
+  "selection": "ascending SHA256(seed + '/' + normalized_question_sha256), UTF-8",
+  "deny_normalization": "UTF8(' '.join(NFKC(text).casefold().split())) then SHA-256",
+  "unique_official_test_questions": 1319,
+  "deny_count": 1435,
+  "counts": {
+    "warmup": 4,
+    "dev": 32,
+    "gsm8k-final": 128,
+    "mtbench-first-turn": 16
+  },
+  "max_input_tokens": {
+    "warmup": 118,
+    "dev": 110,
+    "gsm8k-final": 171,
+    "mtbench-first-turn": 364
+  },
+  "digests": {
+    "denylist.sha256": "a7694a26eb43f6ff7b9d55cdef0b1cd879ed65a2c0308552bf6c42464aa136fa",
+    "cases.json": "6b37729faf9ca3634742719d3c043392a308077e2aed13b7ac9a464c54bdfce0",
+    "gold.json": "263ae7d12b76b2d033bbd0ab19197c2af9de4a7ba4291e8292f967fdd67eb865"
+  }
+}

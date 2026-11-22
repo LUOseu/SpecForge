@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "stage": "train-first24576",
+  "data_sha256": "38d78a80e5f47915f4117837abc637339c8a886fab16724e7d2c33d1fc58911a",
+  "counts": {
+    "rows": 24576,
+    "tokens": 12259497,
+    "supervised": 9337931,
+    "port_30100_rows": 12832,
+    "mapped_answer_tokens": 8817673,
+    "port_30101_rows": 11744
+  },
+  "finish_counts": {
+    "length": 17756,
+    "stop": 6820
+  },
+  "by_prompt_source": {
+    "ShareGPT user prompts": {
+      "rows": 18746,
+      "total_tokens": 8820733,
+      "supervised_target_tokens": 7196854,
+      "length_rows": 13878,
+      "stop_rows": 4868
+    },
+    "UltraChat train_sft user prompts": {
+      "rows": 5830,
+      "total_tokens": 3438764,
+      "supervised_target_tokens": 2141077,
+      "length_rows": 3878,
+      "stop_rows": 1952
+    }
+  },
+  "distinct_answer_token_ids": 78493,
+  "last_reserved_index": 24728,
+  "fixed_vocab_sha256": "bb23e71ff5bccec5b91cbf18b9c2c8a4022d606cbfd7a251be21ed54b9dd17f7",
+  "mapped_distinct_answer_token_ids": 31357,
+  "answer_token_coverage": 0.9442855167809657
+}

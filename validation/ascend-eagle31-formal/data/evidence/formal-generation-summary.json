@@ -1,0 +1,47 @@
+{
+  "status": "completed",
+  "accepted": {
+    "train": 32768,
+    "heldout": 128
+  },
+  "journal_by_port": [
+    {
+      "port": 30100,
+      "requests": 17183,
+      "accepted_rows": 17089,
+      "emitted_answer_tokens": 6470289,
+      "mean_answer_tokens": 376.5517662806262,
+      "mean_request_seconds": 14.57139542398404
+    },
+    {
+      "port": 30101,
+      "requests": 15869,
+      "accepted_rows": 15807,
+      "emitted_answer_tokens": 5931778,
+      "mean_answer_tokens": 373.7965845358876,
+      "mean_request_seconds": 14.385114059621774
+    }
+  ],
+  "journal_by_split": [
+    {
+      "split": "heldout",
+      "requests": 129,
+      "accepted": 128,
+      "emitted_tokens": 51029,
+      "kept_label_tokens": 51027
+    },
+    {
+      "split": "train",
+      "requests": 32923,
+      "accepted": 32768,
+      "emitted_tokens": 12351038,
+      "kept_label_tokens": 12350505
+    }
+  ],
+  "total_generated_output_tokens": 12402067,
+  "approximate_first_submission_unix": 1795277153.2121277,
+  "last_producer_completion_unix": 1795287649.311038,
+  "wall_seconds_including_replica_handoff": 10496.098910331726,
+  "approximate_pooled_emitted_tokens_per_wall_second": 1181.5882363486642,
+  "elapsed_definition": "First-submission time is estimated from the first active producer heartbeat. Last time is the final producer done-file mtime. Wall duration includes the temporary second-replica evaluation reservation."
+}

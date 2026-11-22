@@ -1,0 +1,9 @@
+{
+  "run_id": "teacher16384-24576-ddp4-b2-v1",
+  "step": 1024,
+  "checkpoint": "teacher16384-24576-ddp4-b2-v1-step1024",
+  "config_sha256": "3ef747a377cfb743067f4b64f759595af5a0eeeb37f6f0399c875f53fb00e66c",
+  "model_sha256": "1edb70ae5bbc6755a4e43b85484603af635f6bcaa33a0698bfb880abb96bc9ce",
+  "weight_bytes": 366391392,
+  "checkpoint_shared_state_sha256": "0c5d75c53d182b4c41e571a5857ea72b683608d77e21c4bb1cf93a99b94ce59b"
+}
