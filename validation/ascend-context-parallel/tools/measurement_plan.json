@@ -1,0 +1,8 @@
+{
+  "primary_comparison": "Arithmetic mean of the reported optimizer-window training loss at updates 1 through 10 versus 91 through 100, separately for each arm.",
+  "plot": "Keep the unsmoothed 100-point series for each model. Any trailing rolling mean is descriptive.",
+  "corroboration": "Evaluate the same fixed 16 independent teacher-response conversations before training and after updates 25, 50, 75 and 100.",
+  "sample_plan": "Use the seeded offline sampler, seed 42, and the same 512 ShareGPT examples in both arms. Compare 400 distinct examples across the first 100 optimizer updates in each arm, four microbatches per update.",
+  "matched_settings": "Fresh random draft parameters, existing target-bound embedding and external target LM head, fixed source vocabulary mapping, constant positive learning rate 1e-4, clip norm 0.5, TTT 3, geometric depth factor 0.8 and max input length 1536. Both runs use the same four physical 910B3 devices under Ulysses2 x Ring2.",
+  "interpretation": "Report all included measurements and qualify any inference as short-run for these samples, seed and settings. Training loss includes the actual source mask and native normalization. If both training and held-out evidence are ambiguous, discuss extending both arms using the same preselected budget."
+}

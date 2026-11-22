@@ -1,0 +1,42 @@
+{
+  "implementation_commit": "c0725d4400774132f53328ef31e11724defddb05",
+  "runtime_source_files_hash_checked": 365,
+  "physical_910B3_ids": [
+    0,
+    1,
+    2,
+    4
+  ],
+  "common_parameter_names_initially_bit_identical": [
+    "module.draft_model.backbone.final_norm.weight",
+    "module.draft_model.backbone.layers.0.hidden_norm.weight",
+    "module.draft_model.backbone.layers.0.input_layernorm.weight",
+    "module.draft_model.backbone.layers.0.mlp.down_proj.weight",
+    "module.draft_model.backbone.layers.0.mlp.gate_proj.weight",
+    "module.draft_model.backbone.layers.0.mlp.up_proj.weight",
+    "module.draft_model.backbone.layers.0.post_attention_layernorm.weight",
+    "module.draft_model.backbone.layers.0.self_attn.k_proj.weight",
+    "module.draft_model.backbone.layers.0.self_attn.o_proj.weight",
+    "module.draft_model.backbone.layers.0.self_attn.q_proj.weight",
+    "module.draft_model.backbone.layers.0.self_attn.v_proj.weight",
+    "module.draft_model.embed_tokens.weight",
+    "module.draft_model.fusion.fc.weight",
+    "module.draft_model.lm_head.weight",
+    "module.target_head.weight"
+  ],
+  "additional_eagle31_parameters": [
+    "module.draft_model.fusion.fc_norm.0.weight",
+    "module.draft_model.fusion.fc_norm.1.weight",
+    "module.draft_model.fusion.fc_norm.2.weight"
+  ],
+  "actual_sample_order_identical_across_methods_and_all_ranks": true,
+  "unique_train_samples_per_arm": 400,
+  "actual_input_tokens_per_arm": 156442,
+  "actual_source_mask_positions_per_arm": 117055,
+  "training_manifest_sha256": "770e1d7ed95ab0d525af988499488ef54b4ef27d18881a793367121889b9d62b",
+  "heldout_manifest_sha256": "cf731ac433625b7978a19af2f4d229b08c131b1be5d246b0955e5625ad259fd8",
+  "completed_adam_updates_per_arm": [
+    100,
+    100
+  ]
+}

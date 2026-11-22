@@ -1,0 +1,48 @@
+model:
+  target_model_path: /path/to/target
+  target_backend: sglang
+  torch_dtype: bfloat16
+  embedding_key: model.embed_tokens.weight
+  vocab_mapping_path: /path/to/vocab.pt
+draft: /path/to/SpecForge/specforge/config/draft/presets/qwen3-30B-A3B-eagle3.1.yaml
+data:
+  hidden_states_path: /path/to/run/features
+  eval_hidden_states_path: /path/to/run/heldout/features
+  max_length: 1536
+  chat_template: qwen
+  dataloader_num_workers: 0
+  cache_dir: /path/to/run/eagle31/cache
+training:
+  num_epochs: 1
+  max_steps: 100
+  batch_size: 1
+  accumulation_steps: 1
+  loss:
+    execution:
+      chunk_size: 512
+  learning_rate: 0.0001
+  lr_scheduler: constant
+  warmup_ratio: 0
+  max_grad_norm: 0.5
+  objective_options:
+    ttt_length: 3
+    depth_decay: 0.8
+  attention_backend: usp
+  sp_ulysses_size: 2
+  sp_ring_size: 2
+  tp_size: 1
+  fsdp_sharding: NO_SHARD
+  seed: 42
+  dist_timeout: 5
+  save_interval: 100
+  log_interval: 1
+  eval_interval: 25
+deployment:
+  mode: local_colocated
+  trainer:
+    nproc_per_node: 4
+    nnodes: 1
+tracking:
+  report_to: none
+run_id: cp100-eagle31
+output_dir: /path/to/run/eagle31/train

@@ -1,0 +1,58 @@
+{
+  "method": "EAGLE3",
+  "checkpoint": "cp100-eagle3-step100",
+  "global_step": 100,
+  "microbatches": 400,
+  "unique_training_rows": 400,
+  "actual_order_verified_against_seed42": true,
+  "rank_traces_identical": true,
+  "sample_order_sha256": "da3cc4bac504a4c92d520c3e3b27b38ea2398e0858771d6261dab419d4c19feb",
+  "checkpoint_adam_parameter_step_range": [
+    100,
+    100
+  ],
+  "all_adam_moments_and_fp32_masters_finite": true,
+  "final_parameters_changed_from_initial": 13,
+  "npu_rng_ranks": 4,
+  "heldout_evaluations": [
+    {
+      "method": "EAGLE3",
+      "update": "0",
+      "loss": "17.346758214756846",
+      "n_samples": "16"
+    },
+    {
+      "method": "EAGLE3",
+      "update": "25",
+      "loss": "13.258123863488436",
+      "n_samples": "16"
+    },
+    {
+      "method": "EAGLE3",
+      "update": "50",
+      "loss": "12.805256016086787",
+      "n_samples": "16"
+    },
+    {
+      "method": "EAGLE3",
+      "update": "75",
+      "loss": "12.36685051349923",
+      "n_samples": "16"
+    },
+    {
+      "method": "EAGLE3",
+      "update": "100",
+      "loss": "11.951807256322354",
+      "n_samples": "16"
+    }
+  ],
+  "scheduler": "constant",
+  "training": {
+    "first_10_mean_loss": 15.63897705078125,
+    "last_10_mean_loss": 12.843552112579346,
+    "gradient_norm_range": [
+      3.840864419937134,
+      15.206851959228516
+    ]
+  }
+}

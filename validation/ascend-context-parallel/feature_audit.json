@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "train": {
+    "rows": 512,
+    "files_reopened": 512,
+    "input_tokens": 194615,
+    "assistant_mask_tokens": 146598,
+    "minimum_length": 21,
+    "maximum_length": 1536,
+    "unique_sequences": 512,
+    "source_stage_sha256": "d88c14ff9aaf4cbfe77ea3dbba794f4f5e815a4cfea747865c7c9bc8e73df83a",
+    "feature_manifest_sha256": "770e1d7ed95ab0d525af988499488ef54b4ef27d18881a793367121889b9d62b"
+  },
+  "heldout": {
+    "rows": 16,
+    "files_reopened": 16,
+    "input_tokens": 9801,
+    "assistant_mask_tokens": 6295,
+    "minimum_length": 159,
+    "maximum_length": 1241,
+    "unique_sequences": 16,
+    "source_stage_sha256": "ec3f1edb952eca5981fcd36e13ebe3f860174391b7f0165a68f536ef3ef85b81",
+    "feature_manifest_sha256": "cf731ac433625b7978a19af2f4d229b08c131b1be5d246b0955e5625ad259fd8"
+  },
+  "fixed_vocab_sha256": "bb23e71ff5bccec5b91cbf18b9c2c8a4022d606cbfd7a251be21ed54b9dd17f7",
+  "target": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+  "target_revision": "0d7cf23991f47feeb3a57ecb4c9cee8ea4a17bfe",
+  "aux_layer_ids": [
+    1,
+    23,
+    44
+  ],
+  "feature_dtype": "bfloat16",
+  "feature_widths": [
+    6144,
+    2048
+  ],
+  "overlap_heldout16_vs_all_vocab_source8192": {
+    "family": 0,
+    "normalized_sha256": 0,
+    "near_sha256": 0
+  },
+  "training_answers": "Original ShareGPT assistant answers",
+  "validation_answers": "Greedy target regenerations on independently reserved ShareGPT user prompts"
+}

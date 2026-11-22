@@ -1,0 +1,78 @@
+{
+  "test_module": "tests.test_runtime.test_ascend_usp_training",
+  "source_base": "5d4c6a1483afec88b19270d369d16b99492abfdf",
+  "artifact": "measured_hardware_test",
+  "environment": {
+    "accelerator": "Ascend 910B3 64GB",
+    "pytorch": "2.10.0+cpu",
+    "torch_npu": "2.10.0.post6",
+    "transformers": "5.19.0",
+    "collective_backend": "HCCL"
+  },
+  "setup": {
+    "seed": 821,
+    "sequence_length": 37,
+    "valid_context_length": 35,
+    "rollout_depths": 3,
+    "model": "tiny randomly initialized EAGLE3.1 with normalized features and output, 8 Q heads, 2 KV heads, head dimension 64",
+    "teacher": "tiny frozen random linear head, identical weights/inputs across reference and USP",
+    "capture_positions": "2*i + 13 with two right-padding positions",
+    "precision": "BF16 autocast, FP32 weights, canonical DDP strategy",
+    "optimizer": "one SGD step, lr=0.1",
+    "supervision": "sparse cross-shard labels"
+  },
+  "reference": "one full sequence on each rank, same weights, eager dense attention",
+  "validation": [
+    "per-depth ploss and acceptance_rate relative tolerance 0.003, absolute tolerance 0.00001",
+    "global loss relative tolerance 0.003, absolute tolerance 0.00001",
+    "every trainable tensor gradient and SGD delta relative L2 < 0.055"
+  ],
+  "runs": [
+    {
+      "ulysses": 1,
+      "ring": 2,
+      "dense_loss": 1.3752071857452393,
+      "usp_loss": 1.3752080202102661,
+      "max_gradient_relative_l2": 0.006126049440354109,
+      "worst_parameter": "backbone.layers.0.self_attn.k_proj.weight",
+      "trainable_tensors": 17
+    },
+    {
+      "ulysses": 2,
+      "ring": 1,
+      "dense_loss": 1.3752071857452393,
+      "usp_loss": 1.3752098083496094,
+      "max_gradient_relative_l2": 0.005672450643032789,
+      "worst_parameter": "backbone.layers.0.self_attn.k_proj.weight",
+      "trainable_tensors": 17
+    },
+    {
+      "ulysses": 2,
+      "ring": 2,
+      "dense_loss": 1.3752071857452393,
+      "usp_loss": 1.375208854675293,
+      "max_gradient_relative_l2": 0.006061192601919174,
+      "worst_parameter": "backbone.layers.0.self_attn.k_proj.weight",
+      "trainable_tensors": 17
+    },
+    {
+      "ulysses": 4,
+      "ring": 1,
+      "dense_loss": 1.3752071857452393,
+      "usp_loss": 1.3752098083496094,
+      "max_gradient_relative_l2": 0.0059629990719258785,
+      "worst_parameter": "backbone.layers.0.self_attn.k_proj.weight",
+      "trainable_tensors": 17
+    },
+    {
+      "ulysses": 1,
+      "ring": 4,
+      "dense_loss": 1.3752071857452393,
+      "usp_loss": 1.3752086162567139,
+      "max_gradient_relative_l2": 0.006078793667256832,
+      "worst_parameter": "backbone.layers.0.self_attn.k_proj.weight",
+      "trainable_tensors": 17
+    }
+  ],
+  "repeat_runs_with_reviewed_integration": "All five modes repeated, metrics reproduced exactly."
+}

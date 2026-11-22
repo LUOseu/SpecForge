@@ -1,0 +1,64 @@
+{
+  "hardware": "Ascend 910B3",
+  "torch": "2.10.0+cpu",
+  "torch_npu": "2.10.0.post6",
+  "config": {
+    "ring_size": 2,
+    "batch": 1,
+    "global_sequence_length": 8192,
+    "local_sequence_length": 4096,
+    "query_heads": 16,
+    "kv_heads": 4,
+    "head_dimension": 128,
+    "dtype": "bfloat16",
+    "rollout_depth": 1,
+    "warmup_iterations": 2,
+    "profiled_iterations": 6
+  },
+  "definition": "Within each rank, intersect interval unions of HCCS payload copies and attention forward/backward kernels on the same Ascend Hardware PID. Match every copy to a CANN Communication Memcpy by stream id, task id, start and duration. Exclude the on-chip staging, waits, host calls and HCCL operation envelopes. Attribute payload phase by its containing hcom_batchSendRecv operation: each two-rank iteration posts forward KV, backward KV, and two backward dKV rotations, in order. Report the fraction of each phase\u2019s transfer interval union overlapping either fused kernel. All durations refer to device time, in microseconds.",
+  "limits": "This is a two-card isolated cached-attention microbenchmark with one causal base block, two warmups and contiguous shards. Differences across ranks reflect distinct causal workloads and scheduling. Device overlap is not a training speedup measurement.",
+  "ranks": [
+    {
+      "transport_by_training_phase": {
+        "forward": {
+          "payload_bytes": 50331648,
+          "payload_interval_union_us": 2526.69,
+          "overlap_with_fused_forward_us": 2526.69,
+          "overlap_with_fused_backward_us": 0.0,
+          "fraction_of_payload_time_with_either_fused_kernel": 1.0
+        },
+        "backward": {
+          "payload_bytes": 251658240,
+          "payload_interval_union_us": 12369.004,
+          "overlap_with_fused_forward_us": 0.0,
+          "overlap_with_fused_backward_us": 420.75,
+          "fraction_of_payload_time_with_either_fused_kernel": 0.03401648184445571
+        }
+      },
+      "ring_rank": 0,
+      "transferred_bytes": 301989888,
+      "hccs_transfer_union_us": 14895.694
+    },
+    {
+      "transport_by_training_phase": {
+        "forward": {
+          "payload_bytes": 50331648,
+          "payload_interval_union_us": 2531.47,
+          "overlap_with_fused_forward_us": 2531.47,
+          "overlap_with_fused_backward_us": 0.0,
+          "fraction_of_payload_time_with_either_fused_kernel": 1.0
+        },
+        "backward": {
+          "payload_bytes": 251658240,
+          "payload_interval_union_us": 12376.146,
+          "overlap_with_fused_forward_us": 0.0,
+          "overlap_with_fused_backward_us": 7332.588,
+          "fraction_of_payload_time_with_either_fused_kernel": 0.5924774966294031
+        }
+      },
+      "ring_rank": 1,
+      "transferred_bytes": 301989888,
+      "hccs_transfer_union_us": 14907.616
+    }
+  ]
+}

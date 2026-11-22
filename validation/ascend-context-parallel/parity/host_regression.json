@@ -1,0 +1,13 @@
+{
+  "command": "python -m pytest -q tests/test_algorithms tests/test_runtime tests/test_training tests/test_modeling tests/test_layers --ignore=tests/test_runtime/test_launch_plan.py --ignore=tests/test_runtime/test_server_capture_gate.py --ignore=tests/test_runtime/test_service_readiness.py --ignore=tests/test_layers/test_embedding.py --ignore=tests/test_layers/test_linear.py --ignore=tests/test_layers/test_lm_head.py",
+  "excluded_modules": [
+    "tests/test_runtime/test_launch_plan.py",
+    "tests/test_runtime/test_server_capture_gate.py",
+    "tests/test_runtime/test_service_readiness.py",
+    "tests/test_layers/test_embedding.py",
+    "tests/test_layers/test_linear.py",
+    "tests/test_layers/test_lm_head.py"
+  ],
+  "exclusion_reason": "Local environment could not import sglang for six test modules; three of the six additionally contain CUDA-only layer tests.",
+  "result": "1215 passed, 95 skipped, 1 xfailed, 42 warnings, 1137 subtests passed in 74.90s (0:01:14)"
+}

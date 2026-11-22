@@ -1,0 +1,53 @@
+{
+  "fixture": "Tiny EAGLE3.1, BF16, 3 rollout depths, six seeded synthetic captures of 65 to 70 positions",
+  "training": "specforge.cli train, 2 Ascend 910B3, HCCL, SHARD_GRAD_OP, U1 x R2",
+  "procedure": "Save step 1, start a new CLI process resuming step 1, save step 2. Also run both steps uninterrupted from the same initialization. Compare the full draft state dictionary and rank-local optimizer tensors at step 2.",
+  "world_size": 2,
+  "accumulation_steps": 2,
+  "global_step": 2,
+  "model_state_tensors_equal_bitwise": 19,
+  "optimizer_tensors_equal_bitwise_by_rank": [
+    26,
+    62
+  ],
+  "metrics": {
+    "step1": {
+      "1": {
+        "loss": 2.516847610473633,
+        "grad_norm": 0.4708097577095032,
+        "lr": 0.01,
+        "ploss_0": 1.0433599948883057,
+        "ploss_1": 1.0390571355819702,
+        "ploss_2": 1.0015828609466553
+      }
+    },
+    "resume": {
+      "2": {
+        "loss": 2.366856098175049,
+        "grad_norm": 0.43779972195625305,
+        "lr": 0.0,
+        "ploss_0": 0.9934767484664917,
+        "ploss_1": 0.9484808444976807,
+        "ploss_2": 0.9535201191902161
+      }
+    },
+    "control": {
+      "1": {
+        "loss": 2.516847610473633,
+        "grad_norm": 0.4708097577095032,
+        "lr": 0.01,
+        "ploss_0": 1.0433599948883057,
+        "ploss_1": 1.0390571355819702,
+        "ploss_2": 1.0015828609466553
+      },
+      "2": {
+        "loss": 2.366856098175049,
+        "grad_norm": 0.43779972195625305,
+        "lr": 0.0,
+        "ploss_0": 0.9934767484664917,
+        "ploss_1": 0.9484808444976807,
+        "ploss_2": 0.9535201191902161
+      }
+    }
+  }
+}
