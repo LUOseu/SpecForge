@@ -168,7 +168,9 @@ def _load_input_tools(
 ):
     """Load modality tooling through the provider port or the text default."""
 
-    if input_adapter is None and cfg.mode == "online":
+    if input_adapter is None and (
+        cfg.mode == "online" or cfg.model.input_modality == "multimodal"
+    ):
         streaming = algorithm.providers.server_streaming_for(cfg.model.input_modality)
         input_adapter = streaming.create_input_adapter(cfg)
     if input_adapter is not None:

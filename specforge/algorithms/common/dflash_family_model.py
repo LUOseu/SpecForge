@@ -33,11 +33,12 @@ if hasattr(torch, "npu") and torch.npu.is_available():
 
 _VALID_LOSS_TYPES = {
     "dflash",
+    "mmflash",
     "dpace",
     "dpace-cumulative-confidence-only",
     "dpace-continuation-value-only",
 }
-_DPACE_LOSS_TYPES = _VALID_LOSS_TYPES - {"dflash"}
+_DPACE_LOSS_TYPES = _VALID_LOSS_TYPES - {"dflash", "mmflash"}
 _VALID_LK_LOSS_TYPES = {None, "alpha", "lambda", "tv"}
 # "0" forces DFlash2's reference PyTorch unary head for A/B comparisons.
 _FUSED_UNARY_HEAD_ENV = "SPECFORGE_DFLASH_FUSED_HEAD"
@@ -274,6 +275,8 @@ class OnlineDFlashModel(nn.Module):
         kl_decay: float = 1.0,
         metric_top_k: int = 16,
         teacher_metrics: bool = True,
+        mmflash_smoothing: float = 0.5,
+        visual_alpha: float = 1.0,
     ):
         super().__init__()
         if metric_top_k <= 0:
@@ -319,6 +322,17 @@ class OnlineDFlashModel(nn.Module):
         self.metric_top_k = int(metric_top_k)
         # Diagnostics-only: compare against target_last_hidden_states when fed.
         self.teacher_metrics = bool(teacher_metrics)
+        if not 0 <= mmflash_smoothing <= 1 or not visual_alpha >= 0:
+            raise ValueError(
+                "MMFlash requires smoothing in [0,1] and visual_alpha >= 0"
+            )
+        if loss_type == "mmflash" and (
+            lk_loss_type is not None
+            or getattr(draft_model, "candidate_selector", None) is not None
+        ):
+            raise ValueError("MMFlash expects a plain DFlash draft and cross-entropy")
+        self.mmflash_smoothing = float(mmflash_smoothing)
+        self.visual_alpha = float(visual_alpha)
         self._fused_unary_head_requested = (
             os.environ.get(_FUSED_UNARY_HEAD_ENV, "1") != "0"
         )
@@ -446,6 +460,17 @@ class OnlineDFlashModel(nn.Module):
         if loss_type == "dpace-continuation-value-only":
             return suffix / prefix.clamp_min(torch.finfo(prefix.dtype).tiny)
         raise ValueError(f"unknown D-PACE loss_type {loss_type!r}")
+
+    @torch.no_grad()
+    def _mmflash_weights(self, prob, weight_mask, visual_score):
+        """Detached prefix confidence and visual boost, from the MMFlash image objective."""
+        smooth = (1.0 - self.mmflash_smoothing) * prob + self.mmflash_smoothing
+        prefix = torch.where(weight_mask > 0, smooth, 1.0).cumprod(dim=-1)
+        return (
+            weight_mask
+            * prefix
+            * (1.0 + self.visual_alpha * visual_score * (1.0 - prob))
+        )
 
     def _aligned_target_hidden(
         self,
@@ -819,6 +844,7 @@ class OnlineDFlashModel(nn.Module):
         weight_mask: torch.Tensor,
         predecessor_ids: torch.Tensor,
         sequence_anchor_scale: Optional[torch.Tensor] = None,
+        visual_score: Optional[torch.Tensor] = None,
         *,
         fused_head: bool = False,
     ) -> DFlashObjectiveTerms:
@@ -859,7 +885,13 @@ class OnlineDFlashModel(nn.Module):
                 reduction="none",
             ).reshape_as(target_ids)
 
-        target_probability = torch.exp(-neg_log_q)
+        # MMFlash computes smoothed prefix products in at least FP32.
+        prob_dtype = (
+            torch.promote_types(neg_log_q.dtype, torch.float32)
+            if self.loss_type == "mmflash"
+            else neg_log_q.dtype
+        )
+        target_probability = torch.exp(-neg_log_q.to(prob_dtype))
         loss_weights = weight_mask
         if self.loss_type == "dflash":
             if self.loss_decay_gamma is not None and self.loss_decay_gamma > 0:
@@ -873,6 +905,12 @@ class OnlineDFlashModel(nn.Module):
                 )
                 loss_weights = loss_weights * decay_weights
             loss_den = loss_weights.sum()
+        elif self.loss_type == "mmflash":
+            loss_weights = self._mmflash_weights(
+                target_probability, weight_mask, visual_score
+            )
+            # Forward supplies the batch-size denominator once, after chunk reduction.
+            loss_den = weight_mask.new_zeros(())
         elif self.loss_type in _DPACE_LOSS_TYPES:
             if sequence_anchor_scale is None:
                 raise ValueError(
@@ -967,6 +1005,7 @@ class OnlineDFlashModel(nn.Module):
         aligned_target_hidden: Optional[torch.Tensor] = None,
         sequence_anchor_scale: Optional[torch.Tensor] = None,
         block_index: Optional[torch.Tensor] = None,
+        visual_score: Optional[torch.Tensor] = None,
         *,
         total_blocks: int = 0,
     ) -> DFlashMetricTerms:
@@ -987,6 +1026,7 @@ class OnlineDFlashModel(nn.Module):
             unary.hard_label_probability,
             weight_mask,
             sequence_anchor_scale,
+            visual_score,
         )
         selector = None
         if candidate_selector is not None:
@@ -1066,8 +1106,14 @@ class OnlineDFlashModel(nn.Module):
         hard_label_probability: torch.Tensor,
         weight_mask: torch.Tensor,
         sequence_anchor_scale: Optional[torch.Tensor] = None,
+        visual_score: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Reconstruct effective objective weights for position-share metrics."""
+
+        if self.loss_type == "mmflash":
+            return self._mmflash_weights(
+                hard_label_probability, weight_mask, visual_score
+            )
 
         if self.loss_type == "dflash":
             if self.loss_decay_gamma is None or self.loss_decay_gamma <= 0:
@@ -1397,6 +1443,7 @@ class OnlineDFlashModel(nn.Module):
         max_valid_anchors: Optional[int] = None,
         selector_loss_alpha: Optional[float] = None,
         collect_detailed_metrics: bool = True,
+        visual_score: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor, Dict[str, object]]:
         """Parallel block-wise training forward pass; returns
         (loss, accuracy, metrics) - same shape as Domino's forward.
@@ -1447,6 +1494,17 @@ class OnlineDFlashModel(nn.Module):
         )
         weight_mask = weight_mask * original_loss_mask_gathered
 
+        block_scores = None
+        if self.loss_type == "mmflash":
+            if visual_score is None or visual_score.shape != input_ids.shape:
+                raise ValueError("MMFlash requires visual_score aligned to input_ids")
+            # Scores describe labels at anchor+k, including the text sentinel (-1).
+            block_scores = (
+                visual_score.clamp(0, 1)
+                .gather(1, safe_label_indices.reshape(bsz, -1))
+                .reshape_as(safe_label_indices)
+            )
+
         hidden_4d = output_hidden.reshape(
             bsz,
             anchor_positions.shape[1],
@@ -1486,6 +1544,7 @@ class OnlineDFlashModel(nn.Module):
                     aligned_target_hidden,
                     sequence_anchor_scale,
                     torch.arange(anchor_positions.shape[1], device=device).unsqueeze(0),
+                    block_scores,
                     chunk_size=self.objective_chunk_blocks,
                     dim=1,
                 )
@@ -1497,6 +1556,7 @@ class OnlineDFlashModel(nn.Module):
             weight_mask,
             predecessor_ids,
             sequence_anchor_scale,
+            block_scores,
         )
         fused_head = self._use_fused_unary_head(hidden_4d)
         if fused_head:
@@ -1553,7 +1613,9 @@ class OnlineDFlashModel(nn.Module):
             selector_loss_num = selector_ce_num
             loss_num = loss_num + effective_selector_alpha * selector_loss_num
 
-        loss_denominator = loss_den
+        loss_denominator = (
+            loss_num.new_tensor(bsz) if self.loss_type == "mmflash" else loss_den
+        )
         ratio_metrics = {
             "acc": (correct_num.detach(), accuracy_denom.detach()),
             "target_probability": (
@@ -1719,6 +1781,28 @@ class OnlineDFlashModel(nn.Module):
         metrics["loss_terms"] = (loss_num, loss_denominator.detach())
         accuracy = correct_num / accuracy_denom
         return loss, accuracy, metrics
+
+
+class ScoredVlmDFlashModel(OnlineDFlashModel):
+    """Use the published MMFlash anchor distribution for both arms of a paired run."""
+
+    def _sample_anchor_positions(
+        self, seq_len, loss_mask, device, max_valid_anchors=None
+    ):
+        last_anchor = max(seq_len - self.block_size, 0)
+        valid = loss_mask[:, : last_anchor + 1] > 0.5
+        if max_valid_anchors is None:
+            max_valid_anchors = int(valid.sum(dim=1).max().item()) - 1
+        width = min(self.num_anchors, max_valid_anchors)
+        if width < 1:
+            raise ValueError("MMFlash needs at least two eligible full-block anchors")
+        priority = torch.rand(valid.shape, device=device).masked_fill(~valid, 2.0)
+        chosen = priority.argsort(dim=1)[:, :width]
+        chosen = (
+            chosen.masked_fill(~valid.gather(1, chosen), seq_len).sort(dim=1).values
+        )
+        keep = chosen < seq_len
+        return chosen.masked_fill(~keep, 0), keep
 
 
 class OnlineDominoModel(OnlineDFlashModel):

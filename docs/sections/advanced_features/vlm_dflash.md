@@ -66,6 +66,9 @@ training forward on plain 1D positions**.
   (draft config `configs/qwen3.5-4b-dspark.json`). Both are single-node Ascend
   NPU managed stacks.
 
+- The MMFlash single-image recipe adds offline HF feature capture for a paired
+  MMFlash and DFlash comparison. [Offline scoring and training](../../../examples/mmflash/README.md)
+
 ## Not ported (by design)
 
 - HF-backend VLM capture (`dflash_target_model.py`, `_build_vlm_reqs`,
@@ -80,8 +83,6 @@ training forward on plain 1D positions**.
   signal for it. Retired in favor of the single plain-rope convention above.
 - Two accidental reverts in the original #585 diff (domino projector code,
   D-PACE CLI args) were dropped during the cherry-pick.
-- Offline (precomputed hidden states) multimodal capture: the offline path
-  stays text-only for now.
 - Online evaluation for multimodal runs.
 
 ## Validation status

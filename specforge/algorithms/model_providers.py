@@ -385,15 +385,26 @@ def build_dflash_model(
     _target_config: Any,
     tokenizer: Any,
 ) -> AlgorithmModelParts:
-    from specforge.algorithms.common.dflash_family_model import OnlineDFlashModel
+    from specforge.algorithms.common.dflash_family_model import (
+        OnlineDFlashModel,
+        ScoredVlmDFlashModel,
+    )
+
+    model_type = (
+        ScoredVlmDFlashModel
+        if cfg.mode == "offline" and cfg.model.input_modality == "multimodal"
+        else OnlineDFlashModel
+    )
 
     return _build_dflash_family_model(
         cfg,
         draft_model,
         tokenizer,
-        lambda common: OnlineDFlashModel(
+        lambda common: model_type(
             **common,
             loss_type=cfg.training.loss_type,
+            mmflash_smoothing=cfg.training.mmflash_smoothing,
+            visual_alpha=cfg.training.visual_alpha,
             dpace_alpha=cfg.training.dpace_alpha,
             selector_loss_alpha=cfg.training.dflash2_selector_loss_alpha,
             selector_warmup_ratio=cfg.training.dflash2_selector_warmup_ratio,
