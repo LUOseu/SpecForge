@@ -1,0 +1,31 @@
+{
+  "started": "2026-11-24T18:03:31+08:00",
+  "stopped": "2026-11-24T18:21:15+08:00",
+  "exit": 0,
+  "elapsed": 1064.0,
+  "sampled_peak_gpu_mib": 3351,
+  "forward_smoke": {
+    "checkpoint": "qwen2.5-0.5b-parallel-reconsideration-step10000",
+    "changed_parameter_max_abs": {
+      "self_query.weight": 0.028594970703125,
+      "halt_gate.weight": 0.078125
+    },
+    "logit_shape": [
+      1,
+      32,
+      16000
+    ],
+    "one_pass_refinement_max_abs": 6.5703125,
+    "finite_logits": true
+  },
+  "last_logged_step": 10000,
+  "logged_rows": 1000,
+  "zero_gradient_logs": 111,
+  "window_size": 50,
+  "opening_loss_median": 11.237670421600342,
+  "trailing_loss_median": 5.957599639892578,
+  "median_samples_per_second": 10.020732100539586,
+  "maximum_logged_grad_norm": 39.2613410949707,
+  "step": 10000,
+  "checkpoint": "qwen2.5-0.5b-parallel-reconsideration-step10000"
+}
